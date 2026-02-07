@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Trello/">
+    <Project Path="src/Trello/Trello.Api/Trello.Api.csproj" />
+    <Project Path="src/Trello/Trello.Application/Trello.Application.csproj" />
+    <Project Path="src/Trello/Trello.Domain/Trello.Domain.csproj" />
+    <Project Path="src/Trello/Trello.Infrastructure/Trello.Infrastructure.csproj" />
+  </Folder>
+</Solution>
