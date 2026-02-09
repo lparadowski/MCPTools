@@ -115,4 +115,21 @@ public class TrelloClient : ITrelloClient
         var mapped = ((ICard)card).Adapt<Card>();
         return mapped;
     }
+
+    public async Task<Card?> CreateCardAsync(string listId, string name, string? description, CancellationToken cancellationToken = default)
+    {
+        var list = new TrelloList(listId);
+        await list.Refresh(ct: cancellationToken);
+
+        if (list.Name is null)
+        {
+            return null;
+        }
+
+        var card = await list.Cards.Add(name, description: description, ct: cancellationToken);
+
+        await card.Refresh(ct: cancellationToken);
+
+        return ((ICard)card).Adapt<Card>();
+    }
 }
