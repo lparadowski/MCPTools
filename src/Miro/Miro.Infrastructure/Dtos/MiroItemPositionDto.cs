@@ -1,0 +1,12 @@
+using System.Text.Json.Serialization;
+
+namespace Miro.Infrastructure.Dtos;
+
+internal class MiroItemPositionDto
+{
+    [JsonPropertyName("x")]
+    public double? X { get; set; }
+
+    [JsonPropertyName("y")]
+    public double? Y { get; set; }
+}

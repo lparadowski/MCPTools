@@ -11,4 +11,5 @@ public interface ITrelloClient
     Task<List<Comment>> GetCommentsByCardIdAsync(string cardId, CancellationToken cancellationToken = default);
     Task AddCommentAsync(string cardId, string text, CancellationToken cancellationToken = default);
     Task<Card?> MoveCardToListAsync(string cardId, string listId, CancellationToken cancellationToken = default);
+    Task<Card?> CreateCardAsync(string listId, string name, string? description, CancellationToken cancellationToken = default);
 }

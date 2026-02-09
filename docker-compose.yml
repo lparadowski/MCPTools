@@ -1,0 +1,23 @@
+services:
+  trello-api:
+    build:
+      context: ./src/Trello
+      dockerfile: Trello.Api/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__TrelloApiKey=${TRELLO_API_KEY}
+      - InfrastructureSettings__TrelloApiToken=${TRELLO_TOKEN}
+    restart: unless-stopped
+
+  miro-api:
+    build:
+      context: ./src/Miro
+      dockerfile: Miro.Api/Dockerfile
+    ports:
+      - "5002:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__MiroAccessToken=${MIRO_ACCESS_TOKEN}
+    restart: unless-stopped

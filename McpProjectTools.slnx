@@ -1,9 +1,17 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/McpServer/McpServer.csproj" />
+  </Folder>
   <Folder Name="/src/Trello/">
     <Project Path="src/Trello/Trello.Api/Trello.Api.csproj" />
     <Project Path="src/Trello/Trello.Application/Trello.Application.csproj" />
     <Project Path="src/Trello/Trello.Domain/Trello.Domain.csproj" />
     <Project Path="src/Trello/Trello.Infrastructure/Trello.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Miro/">
+    <Project Path="src/Miro/Miro.Api/Miro.Api.csproj" />
+    <Project Path="src/Miro/Miro.Application/Miro.Application.csproj" />
+    <Project Path="src/Miro/Miro.Domain/Miro.Domain.csproj" />
+    <Project Path="src/Miro/Miro.Infrastructure/Miro.Infrastructure.csproj" />
   </Folder>
 </Solution>
