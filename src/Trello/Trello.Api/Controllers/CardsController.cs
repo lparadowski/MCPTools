@@ -39,6 +39,14 @@ public class CardsController(ITrelloService trelloService) : ControllerBase
         return result.ToOkPostResult();
     }
 
+    [HttpPost]
+    public async Task<Results<Ok<CardResponse>, BadRequest, NotFound, ProblemHttpResult>> CreateCardAsync(
+        [FromBody] CreateCardRequest request, CancellationToken cancellationToken)
+    {
+        var result = await trelloService.CreateCardAsync(request.ListId, request.Name, request.Description, cancellationToken);
+        return result.ToPutResult<Card, CardResponse>(c => c.Adapt<CardResponse>());
+    }
+
     [HttpPut("{id}/list")]
     public async Task<Results<Ok<CardResponse>, BadRequest, NotFound, ProblemHttpResult>> MoveCardToListAsync(
         string id, [FromBody] MoveCardRequest request, CancellationToken cancellationToken)

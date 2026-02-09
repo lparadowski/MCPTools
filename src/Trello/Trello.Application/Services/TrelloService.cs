@@ -14,6 +14,7 @@ public interface ITrelloService
     Task<Result<List<Comment>>> GetCommentsByCardIdAsync(string cardId, CancellationToken cancellationToken = default);
     Task<Result> AddCommentAsync(string cardId, string text, CancellationToken cancellationToken = default);
     Task<Result<Card>> MoveCardToListAsync(string cardId, string listId, CancellationToken cancellationToken = default);
+    Task<Result<Card>> CreateCardAsync(string listId, string name, string? description, CancellationToken cancellationToken = default);
 }
 
 public class TrelloService(ITrelloClient trelloClient) : ITrelloService
@@ -77,6 +78,18 @@ public class TrelloService(ITrelloClient trelloClient) : ITrelloService
     public async Task<Result<Card>> MoveCardToListAsync(string cardId, string listId, CancellationToken cancellationToken = default)
     {
         var card = await trelloClient.MoveCardToListAsync(cardId, listId, cancellationToken);
+
+        if (card is null)
+        {
+            return Result.Fail<Card>(new EntityDoesNotExistError());
+        }
+
+        return Result.Ok(card);
+    }
+
+    public async Task<Result<Card>> CreateCardAsync(string listId, string name, string? description, CancellationToken cancellationToken = default)
+    {
+        var card = await trelloClient.CreateCardAsync(listId, name, description, cancellationToken);
 
         if (card is null)
         {
