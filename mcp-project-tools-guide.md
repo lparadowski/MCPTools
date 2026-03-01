@@ -34,8 +34,14 @@ mcp-project-tools/
 │   │   ├── Program.cs
 │   │   ├── Tools/
 │   │   │   ├── TrelloTools.cs
-│   │   │   ├── JiraTools.cs
-│   │   │   └── MiroTools.cs
+│   │   │   ├── MiroTools.cs
+│   │   │   ├── AiGuessrTools.cs
+│   │   │   ├── AiGuessrSearchTools.cs
+│   │   │   ├── CountryTools.cs
+│   │   │   └── Chrome/
+│   │   │       ├── ChromeTools.cs
+│   │   │       ├── ChromeDevTools.cs
+│   │   │       └── ChromeTab.cs
 │   │   ├── appsettings.json
 │   │   └── McpServer.csproj
 │   │
@@ -1268,6 +1274,31 @@ public static class MiroTools
     }
 }
 ```
+
+### 3.6 Country Tools
+
+Exposes `C:\Geoguessr\countries.json` (122 countries, ~400KB of structured GeoGuessr reference data) via two tools. The file is read from disk on every call so edits are picked up immediately — no restart needed.
+
+```csharp
+// Tools/CountryTools.cs
+[McpServerToolType]
+public static class CountryTools
+{
+    [McpServerTool(Name = "search_countries")]
+    // Search countries.json for countries where ALL keywords appear in a specific field or across all fields.
+    // keywords: string[] — all must match (case-insensitive)
+    // field: string? — e.g. "bollard", "plates", "signs", "driving_side". Null = search all fields.
+    // Returns: country names + matched field content
+
+    [McpServerTool(Name = "get_country")]
+    // Retrieve the full countries.json entry for a specific country (case-insensitive match).
+    // Returns: pretty-printed JSON of the entire country object
+}
+```
+
+**No HTTP dependency** — these tools read directly from disk, unlike other tools that call Docker-hosted APIs.
+
+**Future:** Caching planned for production (deserialize once, invalidate via `FileSystemWatcher`). See Trello ticket.
 
 ---
 
