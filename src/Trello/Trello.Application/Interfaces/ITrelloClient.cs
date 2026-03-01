@@ -12,4 +12,11 @@ public interface ITrelloClient
     Task AddCommentAsync(string cardId, string text, CancellationToken cancellationToken = default);
     Task<Card?> MoveCardToListAsync(string cardId, string listId, CancellationToken cancellationToken = default);
     Task<Card?> CreateCardAsync(string listId, string name, string? description, CancellationToken cancellationToken = default);
+    Task<Card?> UpdateCardAsync(string cardId, string? name, string? description, CancellationToken cancellationToken = default);
+    Task<Card?> ArchiveCardAsync(string cardId, CancellationToken cancellationToken = default);
+    Task<Card?> AddLabelToCardAsync(string cardId, string labelId, CancellationToken cancellationToken = default);
+    Task<Card?> RemoveLabelFromCardAsync(string cardId, string labelId, CancellationToken cancellationToken = default);
+    Task<bool> DeleteCardAsync(string cardId, CancellationToken cancellationToken = default);
+    Task<List<Label>> GetBoardLabelsAsync(string boardId, CancellationToken cancellationToken = default);
+    Task<Label?> CreateBoardLabelAsync(string boardId, string name, string color, CancellationToken cancellationToken = default);
 }

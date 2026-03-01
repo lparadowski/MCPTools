@@ -4,10 +4,11 @@ using Trello.Api.Resources;
 
 namespace Trello.Api.ExceptionHandler;
 
-public sealed class GlobalExceptionHandler : IExceptionHandler
+public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
+        logger.LogError(exception, "Unhandled exception for {Method} {Path}", httpContext.Request.Method, httpContext.Request.Path);
         var problemDetails = new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,

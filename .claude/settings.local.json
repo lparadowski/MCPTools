@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch(domain:developers.miro.com)"
+      "WebFetch(domain:developers.miro.com)",
+      "mcp__project-tools__add_label_to_trello_card"
     ]
   }
 }

@@ -36,6 +36,7 @@ public class MappingConfig
             .Ignore(dest => dest.Comments);
 
         config.NewConfig<ILabel, DomainLabel>()
+            .Map(dest => dest.Id, src => src.Id)
             .Map(dest => dest.Name, src => src.Name)
             .Map(dest => dest.Color, src => src.Color != null ? src.Color.ToString() : null);
 
