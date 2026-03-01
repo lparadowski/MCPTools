@@ -1,4 +1,4 @@
-namespace McpServer.Tools.Chrome;
+namespace Chrome.Core;
 
 public class ChromeTab
 {

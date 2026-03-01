@@ -8,6 +8,9 @@
     <Project Path="src/Trello/Trello.Domain/Trello.Domain.csproj" />
     <Project Path="src/Trello/Trello.Infrastructure/Trello.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Chrome/">
+    <Project Path="src/Chrome/Chrome.Core/Chrome.Core.csproj" />
+  </Folder>
   <Folder Name="/src/Miro/">
     <Project Path="src/Miro/Miro.Api/Miro.Api.csproj" />
     <Project Path="src/Miro/Miro.Application/Miro.Application.csproj" />

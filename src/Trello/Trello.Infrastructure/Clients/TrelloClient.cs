@@ -24,6 +24,20 @@ public class TrelloClient : ITrelloClient
             .ToList();
     }
 
+    public async Task<Board?> CreateBoardAsync(string name, string? description, CancellationToken cancellationToken = default)
+    {
+        var me = await new TrelloFactory().Me();
+        var board = await me.Boards.Add(name, description: description, ct: cancellationToken);
+        await board.Refresh(ct: cancellationToken);
+
+        if (board.Name is null)
+        {
+            return null;
+        }
+
+        return ((IBoard)board).Adapt<Board>();
+    }
+
     public async Task<Board?> GetBoardByIdAsync(string boardId, CancellationToken cancellationToken = default)
     {
         var board = new TrelloBoard(boardId);
@@ -40,6 +54,36 @@ public class TrelloClient : ITrelloClient
         result.Lists = board.Lists.Select(l => l.Adapt<BoardList>()).ToList();
 
         return result;
+    }
+
+    public async Task<Board?> ArchiveBoardAsync(string boardId, CancellationToken cancellationToken = default)
+    {
+        var board = new TrelloBoard(boardId);
+        await board.Refresh(ct: cancellationToken);
+
+        if (board.Name is null)
+        {
+            return null;
+        }
+
+        board.IsClosed = true;
+        await board.Refresh(ct: cancellationToken);
+
+        return ((IBoard)board).Adapt<Board>();
+    }
+
+    public async Task<bool> DeleteBoardAsync(string boardId, CancellationToken cancellationToken = default)
+    {
+        var board = new TrelloBoard(boardId);
+        await board.Refresh(ct: cancellationToken);
+
+        if (board.Name is null)
+        {
+            return false;
+        }
+
+        await board.Delete(ct: cancellationToken);
+        return true;
     }
 
     public async Task<List<Card>> GetCardsByBoardIdAsync(string boardId, CancellationToken cancellationToken = default)

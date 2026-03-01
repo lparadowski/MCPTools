@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Chrome.Core;
 using ModelContextProtocol.Server;
 
 namespace McpServer.Tools.Chrome;
@@ -43,7 +44,7 @@ public static class ChromeTools
     {
         try
         {
-            var tab = await GetPageTabAsync(tabIndex);
+            var tab = await ChromeDevTools.GetPageTabAsync(tabIndex);
             if (tab == null)
                 return "No suitable tab found.";
             if (string.IsNullOrEmpty(tab.WebSocketDebuggerUrl))
@@ -60,165 +61,6 @@ public static class ChromeTools
         {
             return $"Error navigating: {ex.Message}";
         }
-    }
-
-    [McpServerTool(Name = "place_guess_pin")]
-    [Description("""
-        Place a pin on the GeoGuessr guess map at specific latitude/longitude coordinates.
-        Uses React fiber traversal to trigger the Google Maps click handler.
-        Chrome must be running with --remote-debugging-port=9222.
-        """)]
-    public static async Task<string> PlaceGuessPin(
-        [Description("Latitude of the guess location")] double lat,
-        [Description("Longitude of the guess location")] double lng,
-        [Description("Tab index from list_chrome_tabs (default: 0)")] int tabIndex = 0)
-    {
-        try
-        {
-            var tab = await GetPageTabAsync(tabIndex);
-            if (tab == null)
-                return "No suitable tab found.";
-            if (string.IsNullOrEmpty(tab.WebSocketDebuggerUrl))
-                return $"Tab [{tabIndex}] does not expose a WebSocket debugger URL.";
-
-            var js = $$"""
-                (function() {
-                    var lat = {{lat}};
-                    var lng = {{lng}};
-                    var element = document.querySelectorAll('[class^="guess-map_canvas__"]')[0];
-                    if (!element) return 'ERROR: guess map canvas not found';
-
-                    var reactKey = Object.keys(element).find(function(k) { return k.startsWith('__reactFiber$'); });
-                    if (!reactKey) return 'ERROR: React fiber not found';
-
-                    var elementProps = element[reactKey];
-                    var mapClickHandlers = elementProps.return.return.memoizedProps.map.__e3_.click;
-                    var handlerKeys = Object.keys(mapClickHandlers);
-                    var lastKey = handlerKeys[handlerKeys.length - 1];
-                    var clickProps = mapClickHandlers[lastKey];
-
-                    var latLngFns = { latLng: { lat: function() { return lat; }, lng: function() { return lng; } } };
-
-                    var called = 0;
-                    var keys = Object.keys(clickProps);
-                    for (var i = 0; i < keys.length; i++) {
-                        if (typeof clickProps[keys[i]] === 'function') {
-                            clickProps[keys[i]](latLngFns);
-                            called++;
-                        }
-                    }
-                    return 'OK: pin placed at ' + lat + ',' + lng + ' (' + called + ' handlers called)';
-                })()
-                """;
-
-            return await ChromeDevTools.EvaluateJavaScriptAsync(tab.WebSocketDebuggerUrl, js);
-        }
-        catch (Exception ex)
-        {
-            return $"Error placing pin: {ex.Message}";
-        }
-    }
-
-    [McpServerTool(Name = "click_guess_button")]
-    [Description("""
-        Click the 'Guess' button on the GeoGuessr page to submit the current guess.
-        A pin must be placed first using place_guess_pin.
-        Chrome must be running with --remote-debugging-port=9222.
-        """)]
-    public static async Task<string> ClickGuessButton(
-        [Description("Tab index from list_chrome_tabs (default: 0)")] int tabIndex = 0)
-    {
-        try
-        {
-            var tab = await GetPageTabAsync(tabIndex);
-            if (tab == null)
-                return "No suitable tab found.";
-            if (string.IsNullOrEmpty(tab.WebSocketDebuggerUrl))
-                return $"Tab [{tabIndex}] does not expose a WebSocket debugger URL.";
-
-            var js = """
-                (function() {
-                    var btn = document.querySelector('[data-qa="perform-guess"]');
-                    if (!btn) return 'ERROR: guess button not found';
-                    if (btn.disabled) return 'ERROR: guess button is disabled (place a pin first)';
-                    btn.click();
-                    return 'OK: guess submitted';
-                })()
-                """;
-
-            return await ChromeDevTools.EvaluateJavaScriptAsync(tab.WebSocketDebuggerUrl, js);
-        }
-        catch (Exception ex)
-        {
-            return $"Error clicking guess: {ex.Message}";
-        }
-    }
-
-    [McpServerTool(Name = "click_next_round")]
-    [Description("""
-        Click the 'Next' button on the GeoGuessr results screen to proceed to the next round.
-        Also reads the round score and distance before clicking.
-        Chrome must be running with --remote-debugging-port=9222.
-        """)]
-    public static async Task<string> ClickNextRound(
-        [Description("Tab index from list_chrome_tabs (default: 0)")] int tabIndex = 0)
-    {
-        try
-        {
-            var tab = await GetPageTabAsync(tabIndex);
-            if (tab == null)
-                return "No suitable tab found.";
-            if (string.IsNullOrEmpty(tab.WebSocketDebuggerUrl))
-                return $"Tab [{tabIndex}] does not expose a WebSocket debugger URL.";
-
-            var js = """
-                (function() {
-                    // Try multiple known selectors for the next/continue button
-                    var btn = document.querySelector('[data-qa="close-round-result"]')
-                           || document.querySelector('[data-qa="play-again-button"]')
-                           || document.querySelector('a[data-qa="play-again-button"]');
-
-                    // Fallback: find button by text content
-                    if (!btn) {
-                        var buttons = document.querySelectorAll('button, a');
-                        for (var i = 0; i < buttons.length; i++) {
-                            var text = buttons[i].textContent.trim().toLowerCase();
-                            if (text === 'next' || text === 'play again'
-                                || text === 'continue' || text === 'next round'
-                                || text === 'view results' || text === 'see results') {
-                                btn = buttons[i];
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!btn) return 'ERROR: next round button not found';
-
-                    // Try to read score info before clicking
-                    var scoreEl = document.querySelector('[data-qa="round-score"]')
-                               || document.querySelector('[class*="round-result"]');
-                    var score = scoreEl ? scoreEl.textContent.trim() : 'unknown';
-
-                    btn.click();
-                    return 'OK: clicked next (' + btn.textContent.trim().substring(0, 30) + '). Score info: ' + score;
-                })()
-                """;
-
-            return await ChromeDevTools.EvaluateJavaScriptAsync(tab.WebSocketDebuggerUrl, js);
-        }
-        catch (Exception ex)
-        {
-            return $"Error clicking next: {ex.Message}";
-        }
-    }
-
-    private static async Task<ChromeTab?> GetPageTabAsync(int tabIndex)
-    {
-        var tabs = await ChromeDevTools.ListTabsAsync();
-        var pages = tabs.Where(t => t.Type == "page").ToList();
-        if (pages.Count == 0 || tabIndex < 0 || tabIndex >= pages.Count)
-            return null;
-        return pages[tabIndex];
     }
 
     [McpServerTool(Name = "take_tab_screenshot")]
@@ -261,4 +103,5 @@ public static class ChromeTools
             return "Could not connect to Chrome. Make sure Chrome is running with --remote-debugging-port=9222";
         }
     }
+
 }
