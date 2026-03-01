@@ -16,6 +16,18 @@ public static class TrelloTools
         return await response.Content.ReadAsStringAsync();
     }
 
+    [McpServerTool(Name = "create_trello_board")]
+    [Description("Create a new Trello board.")]
+    public static async Task<string> CreateBoard(
+        IHttpClientFactory httpFactory,
+        [Description("The board name")] string name,
+        [Description("Optional board description")] string? description = null)
+    {
+        var http = httpFactory.CreateClient("TrelloApi");
+        var response = await http.PostAsJsonAsync("/api/v1/boards", new { name, description });
+        return await response.Content.ReadAsStringAsync();
+    }
+
     [McpServerTool(Name = "get_trello_board")]
     [Description("Get a Trello board by ID, including its lists/columns.")]
     public static async Task<string> GetBoard(
@@ -24,6 +36,28 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.GetAsync($"/api/v1/boards/{boardId}");
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    [McpServerTool(Name = "archive_trello_board")]
+    [Description("Archive (close) a Trello board. This removes it from the board list but does not permanently delete it.")]
+    public static async Task<string> ArchiveBoard(
+        IHttpClientFactory httpFactory,
+        [Description("The Trello board ID")] string boardId)
+    {
+        var http = httpFactory.CreateClient("TrelloApi");
+        var response = await http.PutAsync($"/api/v1/boards/{boardId}/archive", null);
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    [McpServerTool(Name = "delete_trello_board")]
+    [Description("Permanently delete a Trello board. This cannot be undone. Use archive_trello_board if you want to keep the board recoverable.")]
+    public static async Task<string> DeleteBoard(
+        IHttpClientFactory httpFactory,
+        [Description("The Trello board ID")] string boardId)
+    {
+        var http = httpFactory.CreateClient("TrelloApi");
+        var response = await http.DeleteAsync($"/api/v1/boards/{boardId}");
         return await response.Content.ReadAsStringAsync();
     }
 

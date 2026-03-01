@@ -3,7 +3,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 
-namespace McpServer.Tools.Chrome;
+namespace Chrome.Core;
 
 public static class ChromeDevTools
 {
@@ -163,6 +163,15 @@ public static class ChromeDevTools
             return $"ERROR: {errorText}";
 
         return "OK";
+    }
+
+    public static async Task<ChromeTab?> GetPageTabAsync(int tabIndex, string endpoint = DefaultEndpoint)
+    {
+        var tabs = await ListTabsAsync(endpoint);
+        var pages = tabs.Where(t => t.Type == "page").ToList();
+        if (pages.Count == 0 || tabIndex < 0 || tabIndex >= pages.Count)
+            return null;
+        return pages[tabIndex];
     }
 
     private static async Task<string> ReceiveFullMessageAsync(
