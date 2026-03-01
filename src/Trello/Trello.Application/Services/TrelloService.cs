@@ -15,6 +15,13 @@ public interface ITrelloService
     Task<Result> AddCommentAsync(string cardId, string text, CancellationToken cancellationToken = default);
     Task<Result<Card>> MoveCardToListAsync(string cardId, string listId, CancellationToken cancellationToken = default);
     Task<Result<Card>> CreateCardAsync(string listId, string name, string? description, CancellationToken cancellationToken = default);
+    Task<Result<Card>> UpdateCardAsync(string cardId, string? name, string? description, CancellationToken cancellationToken = default);
+    Task<Result<Card>> ArchiveCardAsync(string cardId, CancellationToken cancellationToken = default);
+    Task<Result<Card>> AddLabelToCardAsync(string cardId, string labelId, CancellationToken cancellationToken = default);
+    Task<Result<Card>> RemoveLabelFromCardAsync(string cardId, string labelId, CancellationToken cancellationToken = default);
+    Task<Result> DeleteCardAsync(string cardId, CancellationToken cancellationToken = default);
+    Task<Result<List<Label>>> GetBoardLabelsAsync(string boardId, CancellationToken cancellationToken = default);
+    Task<Result<Label>> CreateBoardLabelAsync(string boardId, string name, string color, CancellationToken cancellationToken = default);
 }
 
 public class TrelloService(ITrelloClient trelloClient) : ITrelloService
@@ -97,6 +104,84 @@ public class TrelloService(ITrelloClient trelloClient) : ITrelloService
         }
 
         return Result.Ok(card);
+    }
+
+    public async Task<Result<Card>> UpdateCardAsync(string cardId, string? name, string? description, CancellationToken cancellationToken = default)
+    {
+        var card = await trelloClient.UpdateCardAsync(cardId, name, description, cancellationToken);
+
+        if (card is null)
+        {
+            return Result.Fail<Card>(new EntityDoesNotExistError());
+        }
+
+        return Result.Ok(card);
+    }
+
+    public async Task<Result<Card>> ArchiveCardAsync(string cardId, CancellationToken cancellationToken = default)
+    {
+        var card = await trelloClient.ArchiveCardAsync(cardId, cancellationToken);
+
+        if (card is null)
+        {
+            return Result.Fail<Card>(new EntityDoesNotExistError());
+        }
+
+        return Result.Ok(card);
+    }
+
+    public async Task<Result<Card>> AddLabelToCardAsync(string cardId, string labelId, CancellationToken cancellationToken = default)
+    {
+        var card = await trelloClient.AddLabelToCardAsync(cardId, labelId, cancellationToken);
+
+        if (card is null)
+        {
+            return Result.Fail<Card>(new EntityDoesNotExistError());
+        }
+
+        return Result.Ok(card);
+    }
+
+    public async Task<Result<Card>> RemoveLabelFromCardAsync(string cardId, string labelId, CancellationToken cancellationToken = default)
+    {
+        var card = await trelloClient.RemoveLabelFromCardAsync(cardId, labelId, cancellationToken);
+
+        if (card is null)
+        {
+            return Result.Fail<Card>(new EntityDoesNotExistError());
+        }
+
+        return Result.Ok(card);
+    }
+
+    public async Task<Result> DeleteCardAsync(string cardId, CancellationToken cancellationToken = default)
+    {
+        var success = await trelloClient.DeleteCardAsync(cardId, cancellationToken);
+
+        if (!success)
+        {
+            return Result.Fail(new EntityDoesNotExistError());
+        }
+
+        return Result.Ok();
+    }
+
+    public async Task<Result<List<Label>>> GetBoardLabelsAsync(string boardId, CancellationToken cancellationToken = default)
+    {
+        var labels = await trelloClient.GetBoardLabelsAsync(boardId, cancellationToken);
+        return Result.Ok(labels);
+    }
+
+    public async Task<Result<Label>> CreateBoardLabelAsync(string boardId, string name, string color, CancellationToken cancellationToken = default)
+    {
+        var label = await trelloClient.CreateBoardLabelAsync(boardId, name, color, cancellationToken);
+
+        if (label is null)
+        {
+            return Result.Fail<Label>(new EntityDoesNotExistError());
+        }
+
+        return Result.Ok(label);
     }
 
     private static List<string> SplitComment(string comment)

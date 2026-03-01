@@ -3,6 +3,7 @@ using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Trello.Api.Extensions;
+using Trello.Api.Requests;
 using Trello.Api.Responses;
 using Trello.Application.Services;
 using Trello.Domain.Entities;
@@ -36,5 +37,21 @@ public class BoardsController(ITrelloService trelloService) : ControllerBase
     {
         var result = await trelloService.GetCardsByBoardIdAsync(id, cancellationToken);
         return result.ToGetResult<Card, CardResponse>(c => c.Adapt<CardResponse>());
+    }
+
+    [HttpGet("{id}/labels")]
+    public async Task<Results<Ok<List<LabelResponse>>, BadRequest, ProblemHttpResult>> GetBoardLabelsAsync(
+        string id, CancellationToken cancellationToken)
+    {
+        var result = await trelloService.GetBoardLabelsAsync(id, cancellationToken);
+        return result.ToGetResult<Label, LabelResponse>(l => l.Adapt<LabelResponse>());
+    }
+
+    [HttpPost("{id}/labels")]
+    public async Task<Results<Ok<LabelResponse>, BadRequest, NotFound, ProblemHttpResult>> CreateBoardLabelAsync(
+        string id, [FromBody] CreateLabelRequest request, CancellationToken cancellationToken)
+    {
+        var result = await trelloService.CreateBoardLabelAsync(id, request.Name, request.Color, cancellationToken);
+        return result.ToPutResult<Label, LabelResponse>(l => l.Adapt<LabelResponse>());
     }
 }
