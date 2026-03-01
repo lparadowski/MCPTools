@@ -23,12 +23,36 @@ public class BoardsController(ITrelloService trelloService) : ControllerBase
         return result.ToGetResult<Board, BoardResponse>(b => b.Adapt<BoardResponse>());
     }
 
+    [HttpPost]
+    public async Task<Results<Ok<BoardResponse>, BadRequest, NotFound, ProblemHttpResult>> CreateBoardAsync(
+        [FromBody] CreateBoardRequest request, CancellationToken cancellationToken)
+    {
+        var result = await trelloService.CreateBoardAsync(request.Name, request.Description, cancellationToken);
+        return result.ToPutResult<Board, BoardResponse>(b => b.Adapt<BoardResponse>());
+    }
+
     [HttpGet("{id}")]
     public async Task<Results<Ok<BoardResponse>, BadRequest, NotFound, ProblemHttpResult>> GetBoardByIdAsync(
         string id, CancellationToken cancellationToken)
     {
         var result = await trelloService.GetBoardByIdAsync(id, cancellationToken);
         return result.ToGetResult<Board, BoardResponse>(b => b.Adapt<BoardResponse>());
+    }
+
+    [HttpPut("{id}/archive")]
+    public async Task<Results<Ok<BoardResponse>, BadRequest, NotFound, ProblemHttpResult>> ArchiveBoardAsync(
+        string id, CancellationToken cancellationToken)
+    {
+        var result = await trelloService.ArchiveBoardAsync(id, cancellationToken);
+        return result.ToPutResult<Board, BoardResponse>(b => b.Adapt<BoardResponse>());
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<Results<Ok, BadRequest, NotFound, ProblemHttpResult>> DeleteBoardAsync(
+        string id, CancellationToken cancellationToken)
+    {
+        var result = await trelloService.DeleteBoardAsync(id, cancellationToken);
+        return result.ToOkPostResult();
     }
 
     [HttpGet("{id}/cards")]
