@@ -11,6 +11,19 @@ services:
       - InfrastructureSettings__TrelloApiToken=${TRELLO_TOKEN}
     restart: unless-stopped
 
+  confluence-api:
+    build:
+      context: ./src/Confluence
+      dockerfile: Confluence.Api/Dockerfile
+    ports:
+      - "5003:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__ConfluenceBaseUrl=${CONFLUENCE_BASE_URL}
+      - InfrastructureSettings__ConfluenceEmail=${CONFLUENCE_EMAIL}
+      - InfrastructureSettings__ConfluenceApiToken=${CONFLUENCE_API_TOKEN}
+    restart: unless-stopped
+
   miro-api:
     build:
       context: ./src/Miro
