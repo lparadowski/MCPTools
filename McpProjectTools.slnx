@@ -8,6 +8,12 @@
     <Project Path="src/Trello/Trello.Domain/Trello.Domain.csproj" />
     <Project Path="src/Trello/Trello.Infrastructure/Trello.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Confluence/">
+    <Project Path="src/Confluence/Confluence.Api/Confluence.Api.csproj" />
+    <Project Path="src/Confluence/Confluence.Application/Confluence.Application.csproj" />
+    <Project Path="src/Confluence/Confluence.Domain/Confluence.Domain.csproj" />
+    <Project Path="src/Confluence/Confluence.Infrastructure/Confluence.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Chrome/">
     <Project Path="src/Chrome/Chrome.Core/Chrome.Core.csproj" />
   </Folder>
