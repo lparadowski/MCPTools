@@ -1,0 +1,38 @@
+using System.Net.Http.Headers;
+using System.Text;
+using Jira.Application.Interfaces;
+using Jira.Infrastructure.Clients;
+using Jira.Infrastructure.Mappings;
+using Jira.Infrastructure.Settings;
+using Mapster;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Jira.Infrastructure;
+
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddInfrastructureServices(
+        this IServiceCollection services,
+        InfrastructureSettings settings)
+    {
+        services.AddSingleton(settings);
+
+        services.AddHttpClient("JiraApi", client =>
+        {
+            client.BaseAddress = new Uri(settings.JiraBaseUrl);
+            var credentials = Convert.ToBase64String(
+                Encoding.ASCII.GetBytes($"{settings.JiraEmail}:{settings.JiraApiToken}"));
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", credentials);
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+        });
+
+        var mappingConfig = new MappingConfig();
+        mappingConfig.Register(TypeAdapterConfig.GlobalSettings);
+
+        services.AddScoped<IJiraClient, JiraClient>();
+
+        return services;
+    }
+}

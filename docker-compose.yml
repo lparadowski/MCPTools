@@ -34,3 +34,16 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - InfrastructureSettings__MiroAccessToken=${MIRO_ACCESS_TOKEN}
     restart: unless-stopped
+
+  jira-api:
+    build:
+      context: ./src/Jira
+      dockerfile: Jira.Api/Dockerfile
+    ports:
+      - "5004:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__JiraBaseUrl=${JIRA_BASE_URL}
+      - InfrastructureSettings__JiraEmail=${JIRA_EMAIL}
+      - InfrastructureSettings__JiraApiToken=${JIRA_API_TOKEN}
+    restart: unless-stopped

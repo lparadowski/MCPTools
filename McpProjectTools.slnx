@@ -23,4 +23,10 @@
     <Project Path="src/Miro/Miro.Domain/Miro.Domain.csproj" />
     <Project Path="src/Miro/Miro.Infrastructure/Miro.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Jira/">
+    <Project Path="src/Jira/Jira.Api/Jira.Api.csproj" />
+    <Project Path="src/Jira/Jira.Application/Jira.Application.csproj" />
+    <Project Path="src/Jira/Jira.Domain/Jira.Domain.csproj" />
+    <Project Path="src/Jira/Jira.Infrastructure/Jira.Infrastructure.csproj" />
+  </Folder>
 </Solution>
