@@ -3,12 +3,29 @@ using System.Text.Json;
 using Jira.Application.Interfaces;
 using Jira.Domain.Entities;
 using Jira.Infrastructure.Dtos;
+using Jira.Infrastructure.Parsing;
 using Mapster;
 
 namespace Jira.Infrastructure.Clients;
 
 public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 {
+    private static readonly HashSet<string> StandardIssueFields =
+    [
+        "summary",
+        "description",
+        "issuetype",
+        "status",
+        "priority",
+        "assignee",
+        "reporter",
+        "project",
+        "parent",
+        "labels",
+        "created",
+        "updated"
+    ];
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -112,7 +129,16 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         }
 
         var dto = await response.Content.ReadFromJsonAsync<JiraIssueDto>(JsonOptions, cancellationToken);
-        return dto?.Adapt<Issue>();
+        if (dto is null)
+        {
+            return null;
+        }
+
+        var issue = dto.Adapt<Issue>();
+        var fieldDefinitions = await GetFieldDefinitionsAsync(cancellationToken);
+        PopulateAdditionalFields(issue, dto, fieldDefinitions);
+
+        return issue;
     }
 
     public async Task<Issue?> UpdateIssueAsync(string issueKeyOrId, string? summary, string? description, CancellationToken cancellationToken = default)
@@ -173,6 +199,82 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 
         var result = await response.Content.ReadFromJsonAsync<JiraSearchResultDto>(JsonOptions, cancellationToken);
         return result?.Issues?.Select(i => i.Adapt<Issue>()).ToList() ?? [];
+    }
+
+    private async Task<Dictionary<string, JiraFieldDefinitionDto>> GetFieldDefinitionsAsync(CancellationToken cancellationToken)
+    {
+        var http = httpClientFactory.CreateClient("JiraApi");
+        var response = await http.GetAsync("/rest/api/3/field", cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return [];
+        }
+
+        var fieldDefinitions = await response.Content.ReadFromJsonAsync<List<JiraFieldDefinitionDto>>(JsonOptions, cancellationToken);
+        return fieldDefinitions?
+            .Where(f => !string.IsNullOrWhiteSpace(f.Id))
+            .ToDictionary(f => f.Id!, StringComparer.OrdinalIgnoreCase) ?? [];
+    }
+
+    private static void PopulateAdditionalFields(Issue issue, JiraIssueDto dto, IReadOnlyDictionary<string, JiraFieldDefinitionDto> fieldDefinitions)
+    {
+        var additionalFields = new List<IssueField>();
+        var sections = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var field in dto.Fields?.AdditionalFields ?? [])
+        {
+            if (StandardIssueFields.Contains(field.Key) || IsEmpty(field.Value))
+            {
+                continue;
+            }
+
+            fieldDefinitions.TryGetValue(field.Key, out var definition);
+            var name = definition?.Name ?? field.Key;
+            var plainTextValue = ExtractPlainTextValue(field.Value);
+
+            additionalFields.Add(new IssueField
+            {
+                Id = field.Key,
+                Name = name,
+                Type = definition?.Schema?.Type ?? field.Value.ValueKind.ToString(),
+                IsCustom = definition?.Custom ?? field.Key.StartsWith("customfield_", StringComparison.OrdinalIgnoreCase),
+                PlainTextValue = plainTextValue,
+                RawJson = field.Value.GetRawText()
+            });
+
+            if (!string.IsNullOrWhiteSpace(plainTextValue))
+            {
+                sections[name] = plainTextValue;
+            }
+        }
+
+        issue.AdditionalFields = additionalFields;
+        issue.Sections = sections;
+    }
+
+    private static string? ExtractPlainTextValue(JsonElement value)
+    {
+        return value.ValueKind switch
+        {
+            JsonValueKind.String => value.GetString(),
+            JsonValueKind.Object => JiraDocumentParser.ExtractPlainText(value),
+            JsonValueKind.Array => JiraDocumentParser.ExtractPlainText(value),
+            _ => null
+        };
+    }
+
+    private static bool IsEmpty(JsonElement value)
+    {
+        return value.ValueKind switch
+        {
+            JsonValueKind.Null => true,
+            JsonValueKind.Undefined => true,
+            JsonValueKind.String => string.IsNullOrWhiteSpace(value.GetString()),
+            JsonValueKind.Array => value.GetArrayLength() == 0,
+            JsonValueKind.Object => !value.EnumerateObject().Any(),
+            _ => false
+        };
     }
 
     // Transitions

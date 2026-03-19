@@ -1,5 +1,6 @@
 using Jira.Domain.Entities;
 using Jira.Infrastructure.Dtos;
+using Jira.Infrastructure.Parsing;
 using Mapster;
 
 namespace Jira.Infrastructure.Mappings;
@@ -23,7 +24,7 @@ public class MappingConfig
             .Map(dest => dest.Id, src => src.Id ?? string.Empty)
             .Map(dest => dest.Key, src => src.Key ?? string.Empty)
             .Map(dest => dest.Summary, src => src.Fields != null ? src.Fields.Summary ?? string.Empty : string.Empty)
-            .Map(dest => dest.Description, src => ExtractPlainText(src.Fields != null ? src.Fields.Description : null))
+            .Map(dest => dest.Description, src => JiraDocumentParser.ExtractPlainText(src.Fields != null ? src.Fields.Description : null))
             .Map(dest => dest.IssueType, src => src.Fields != null && src.Fields.Issuetype != null ? src.Fields.Issuetype.Name ?? string.Empty : string.Empty)
             .Map(dest => dest.Status, src => src.Fields != null && src.Fields.Status != null ? src.Fields.Status.Name ?? string.Empty : string.Empty)
             .Map(dest => dest.Priority, src => src.Fields != null && src.Fields.Priority != null ? src.Fields.Priority.Name : null)
@@ -44,7 +45,7 @@ public class MappingConfig
         config.NewConfig<JiraCommentDto, Comment>()
             .Map(dest => dest.Id, src => src.Id ?? string.Empty)
             .Map(dest => dest.AuthorDisplayName, src => src.Author != null ? src.Author.DisplayName : null)
-            .Map(dest => dest.Body, src => ExtractPlainText(src.Body))
+            .Map(dest => dest.Body, src => JiraDocumentParser.ExtractPlainText(src.Body))
             .Map(dest => dest.Created, src => src.Created != null ? DateTime.Parse(src.Created) : (DateTime?)null)
             .Map(dest => dest.Updated, src => src.Updated != null ? DateTime.Parse(src.Updated) : (DateTime?)null);
 
@@ -61,33 +62,5 @@ public class MappingConfig
             .Map(dest => dest.Goal, src => src.Goal)
             .Map(dest => dest.StartDate, src => src.StartDate != null ? DateTime.Parse(src.StartDate) : (DateTime?)null)
             .Map(dest => dest.EndDate, src => src.EndDate != null ? DateTime.Parse(src.EndDate) : (DateTime?)null);
-    }
-
-    private static string? ExtractPlainText(JiraDocumentDto? doc)
-    {
-        if (doc?.Content is null)
-        {
-            return null;
-        }
-
-        var texts = new List<string>();
-
-        foreach (var block in doc.Content)
-        {
-            if (block.Content is null)
-            {
-                continue;
-            }
-
-            foreach (var inline in block.Content)
-            {
-                if (inline.Text is not null)
-                {
-                    texts.Add(inline.Text);
-                }
-            }
-        }
-
-        return texts.Count > 0 ? string.Join(" ", texts) : null;
     }
 }
