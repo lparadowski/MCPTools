@@ -16,6 +16,7 @@ public interface IConfluenceService
     Task<Result<Page>> CreatePageAsync(string spaceId, string title, string? body, string? parentId, CancellationToken cancellationToken = default);
     Task<Result<Page>> UpdatePageAsync(string pageId, string title, string? body, int version, CancellationToken cancellationToken = default);
     Task<Result> DeletePageAsync(string pageId, CancellationToken cancellationToken = default);
+    Task<Result<List<SearchResult>>> SearchAsync(string cql, int maxResults = 25, CancellationToken cancellationToken = default);
 }
 
 public class ConfluenceService(IConfluenceClient confluenceClient) : IConfluenceService
@@ -114,5 +115,11 @@ public class ConfluenceService(IConfluenceClient confluenceClient) : IConfluence
         }
 
         return Result.Ok();
+    }
+
+    public async Task<Result<List<SearchResult>>> SearchAsync(string cql, int maxResults = 25, CancellationToken cancellationToken = default)
+    {
+        var results = await confluenceClient.SearchAsync(cql, maxResults, cancellationToken);
+        return Result.Ok(results);
     }
 }

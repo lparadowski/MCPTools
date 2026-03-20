@@ -17,4 +17,5 @@ public class Issue
     public List<string> Labels { get; set; } = [];
     public DateTime? Created { get; set; }
     public DateTime? Updated { get; set; }
+    public Dictionary<string, object?> Fields { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }

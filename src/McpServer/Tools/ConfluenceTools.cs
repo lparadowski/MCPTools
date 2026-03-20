@@ -101,6 +101,18 @@ public static class ConfluenceTools
         return await response.Content.ReadAsStringAsync();
     }
 
+    [McpServerTool(Name = "search_confluence")]
+    [Description("Search Confluence using CQL (Confluence Query Language). Examples: 'text ~ \"deploy process\"', 'type = page AND space = DEV', 'label = architecture AND lastModified > now(\"-30d\")'")]
+    public static async Task<string> Search(
+        IHttpClientFactory httpFactory,
+        [Description("CQL query string (e.g. 'text ~ \"search term\"' or 'type = page AND space = DEV')")] string cql,
+        [Description("Maximum results to return (default 25)")] int maxResults = 25)
+    {
+        var http = httpFactory.CreateClient("ConfluenceApi");
+        var response = await http.PostAsJsonAsync("/api/v1/search", new { cql, maxResults });
+        return await response.Content.ReadAsStringAsync();
+    }
+
     [McpServerTool(Name = "delete_confluence_page")]
     [Description("Permanently delete a Confluence page. This cannot be undone.")]
     public static async Task<string> DeletePage(

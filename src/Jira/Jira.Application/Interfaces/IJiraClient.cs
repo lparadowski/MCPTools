@@ -9,9 +9,22 @@ public interface IJiraClient
     Task<Project?> GetProjectAsync(string projectKeyOrId, CancellationToken cancellationToken = default);
 
     // Issues
-    Task<Issue?> CreateIssueAsync(string projectKey, string issueType, string summary, string? description, string? parentKey, List<string>? labels, CancellationToken cancellationToken = default);
+    Task<Issue?> CreateIssueAsync(
+        string projectKey,
+        string issueType,
+        string summary,
+        string? description,
+        Dictionary<string, string?>? customFields,
+        string? parentKey,
+        List<string>? labels,
+        CancellationToken cancellationToken = default);
     Task<Issue?> GetIssueAsync(string issueKeyOrId, CancellationToken cancellationToken = default);
-    Task<Issue?> UpdateIssueAsync(string issueKeyOrId, string? summary, string? description, CancellationToken cancellationToken = default);
+    Task<Issue?> UpdateIssueAsync(
+        string issueKeyOrId,
+        string? summary,
+        string? description,
+        Dictionary<string, string?>? customFields,
+        CancellationToken cancellationToken = default);
     Task<bool> DeleteIssueAsync(string issueKeyOrId, CancellationToken cancellationToken = default);
     Task<List<Issue>> SearchIssuesAsync(string jql, int maxResults = 50, CancellationToken cancellationToken = default);
 
