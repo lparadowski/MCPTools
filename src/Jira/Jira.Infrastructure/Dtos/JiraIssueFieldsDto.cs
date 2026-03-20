@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Jira.Infrastructure.Dtos;
 
 public class JiraIssueFieldsDto
@@ -14,4 +17,6 @@ public class JiraIssueFieldsDto
     public List<string>? Labels { get; set; }
     public string? Created { get; set; }
     public string? Updated { get; set; }
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? AdditionalFields { get; set; }
 }
