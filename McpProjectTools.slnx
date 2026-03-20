@@ -35,7 +35,14 @@
     <Project Path="src/AzureDevOps/AzureDevOps.Domain/AzureDevOps.Domain.csproj" />
     <Project Path="src/AzureDevOps/AzureDevOps.Infrastructure/AzureDevOps.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Polarion/">
+    <Project Path="src/Polarion/Polarion.Api/Polarion.Api.csproj" />
+    <Project Path="src/Polarion/Polarion.Application/Polarion.Application.csproj" />
+    <Project Path="src/Polarion/Polarion.Domain/Polarion.Domain.csproj" />
+    <Project Path="src/Polarion/Polarion.Infrastructure/Polarion.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Shared/">
     <Project Path="src/Shared/Shared.Application/Shared.Application.csproj" />
+    <Project Path="src/Shared/Shared.Api/Shared.Api.csproj" />
   </Folder>
 </Solution>
