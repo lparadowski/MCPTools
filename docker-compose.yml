@@ -71,3 +71,15 @@ services:
       - InfrastructureSettings__Organization=${AZURE_DEVOPS_ORGANIZATION}
       - InfrastructureSettings__PersonalAccessToken=${AZURE_DEVOPS_PAT}
     restart: unless-stopped
+
+  polarion-api:
+    build:
+      context: ./src
+      dockerfile: Polarion/Polarion.Api/Dockerfile
+    ports:
+      - "5006:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__PolarionBaseUrl=${POLARION_BASE_URL}
+      - InfrastructureSettings__PolarionToken=${POLARION_TOKEN}
+    restart: unless-stopped
