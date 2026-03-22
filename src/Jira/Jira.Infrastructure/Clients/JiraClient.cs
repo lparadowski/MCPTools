@@ -10,6 +10,22 @@ namespace Jira.Infrastructure.Clients;
 
 public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 {
+    private static readonly HashSet<string> StandardIssueFields =
+    [
+        "summary",
+        "description",
+        "issuetype",
+        "status",
+        "priority",
+        "assignee",
+        "reporter",
+        "project",
+        "parent",
+        "labels",
+        "created",
+        "updated"
+    ];
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
