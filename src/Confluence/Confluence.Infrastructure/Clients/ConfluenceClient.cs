@@ -246,6 +246,26 @@ public class ConfluenceClient(IHttpClientFactory httpClientFactory) : IConfluenc
         return response.IsSuccessStatusCode;
     }
 
+    public async Task<List<SearchResult>> SearchAsync(string cql, int maxResults = 25, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("ConfluenceApi");
+        var url = $"/wiki/rest/api/search?cql={Uri.EscapeDataString(cql)}&limit={maxResults}";
+        var response = await http.GetAsync(url, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var dto = await response.Content.ReadFromJsonAsync<ConfluenceSearchResponseDto>(JsonOptions, cancellationToken);
+        return dto?.Results?.Select(r => new SearchResult
+        {
+            Title = r.Content?.Title ?? r.Title ?? string.Empty,
+            Type = r.Content?.Type ?? r.EntityType,
+            Id = r.Content?.Id,
+            SpaceKey = r.Content?.Space?.Key,
+            Excerpt = r.Excerpt,
+            Url = r.Url,
+            LastModified = r.LastModified
+        }).ToList() ?? [];
+    }
+
     private static string? ExtractCursor(string? nextLink)
     {
         if (string.IsNullOrEmpty(nextLink))

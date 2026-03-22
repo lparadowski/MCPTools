@@ -39,12 +39,13 @@ public static class JiraTools
         [Description("Issue type: Epic, Story, Task, Bug, or Subtask")] string issueType,
         [Description("Issue summary/title")] string summary,
         [Description("Issue description (plain text)")] string? description = null,
+        [Description("Optional Jira custom text fields keyed by Jira field id, e.g. {\"customfield_10039\":\"Story text\"}")] Dictionary<string, string?>? customFields = null,
         [Description("Parent issue key for hierarchy (e.g. 'PROJ-1' for Epic parent)")] string? parentKey = null,
         [Description("Comma-separated labels to add")] string? labels = null)
     {
         var http = httpFactory.CreateClient("JiraApi");
         var labelList = labels?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
-        var response = await http.PostAsJsonAsync("/api/v1/issues", new { projectKey, issueType, summary, description, parentKey, labels = labelList });
+        var response = await http.PostAsJsonAsync("/api/v1/issues", new { projectKey, issueType, summary, description, customFields, parentKey, labels = labelList });
         return await response.Content.ReadAsStringAsync();
     }
 
@@ -65,10 +66,11 @@ public static class JiraTools
         IHttpClientFactory httpFactory,
         [Description("The issue key (e.g. 'PROJ-123') or numeric ID")] string issueKeyOrId,
         [Description("New summary/title (null to keep current)")] string? summary = null,
-        [Description("New description (null to keep current)")] string? description = null)
+        [Description("New description (null to keep current)")] string? description = null,
+        [Description("Optional Jira custom text fields keyed by Jira field id, e.g. {\"customfield_10039\":\"Story text\"}")] Dictionary<string, string?>? customFields = null)
     {
         var http = httpFactory.CreateClient("JiraApi");
-        var response = await http.PutAsJsonAsync($"/api/v1/issues/{issueKeyOrId}", new { summary, description });
+        var response = await http.PutAsJsonAsync($"/api/v1/issues/{issueKeyOrId}", new { summary, description, customFields });
         return await response.Content.ReadAsStringAsync();
     }
 

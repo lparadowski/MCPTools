@@ -19,7 +19,15 @@ public class IssuesController(IJiraService jiraService) : ControllerBase
     public async Task<Results<Ok<IssueResponse>, BadRequest, NotFound, ProblemHttpResult>> CreateIssueAsync(
         [FromBody] CreateIssueRequest request, CancellationToken cancellationToken)
     {
-        var result = await jiraService.CreateIssueAsync(request.ProjectKey, request.IssueType, request.Summary, request.Description, request.ParentKey, request.Labels, cancellationToken);
+        var result = await jiraService.CreateIssueAsync(
+            request.ProjectKey,
+            request.IssueType,
+            request.Summary,
+            request.Description,
+            request.CustomFields,
+            request.ParentKey,
+            request.Labels,
+            cancellationToken);
         return result.ToPutResult<Issue, IssueResponse>(i => i.Adapt<IssueResponse>());
     }
 
@@ -35,7 +43,7 @@ public class IssuesController(IJiraService jiraService) : ControllerBase
     public async Task<Results<Ok<IssueResponse>, BadRequest, NotFound, ProblemHttpResult>> UpdateIssueAsync(
         string issueKeyOrId, [FromBody] UpdateIssueRequest request, CancellationToken cancellationToken)
     {
-        var result = await jiraService.UpdateIssueAsync(issueKeyOrId, request.Summary, request.Description, cancellationToken);
+        var result = await jiraService.UpdateIssueAsync(issueKeyOrId, request.Summary, request.Description, request.CustomFields, cancellationToken);
         return result.ToPutResult<Issue, IssueResponse>(i => i.Adapt<IssueResponse>());
     }
 
