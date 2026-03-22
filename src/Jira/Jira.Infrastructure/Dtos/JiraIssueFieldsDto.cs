@@ -17,7 +17,6 @@ public class JiraIssueFieldsDto
     public List<string>? Labels { get; set; }
     public string? Created { get; set; }
     public string? Updated { get; set; }
-
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? AdditionalFields { get; set; }
 }

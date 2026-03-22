@@ -29,9 +29,17 @@ public class JiraService(IJiraClient jiraClient) : IJiraService
 
     // Issues
 
-    public async Task<Result<Issue>> CreateIssueAsync(string projectKey, string issueType, string summary, string? description, string? parentKey, List<string>? labels, CancellationToken cancellationToken = default)
+    public async Task<Result<Issue>> CreateIssueAsync(
+        string projectKey,
+        string issueType,
+        string summary,
+        string? description,
+        Dictionary<string, string?>? customFields,
+        string? parentKey,
+        List<string>? labels,
+        CancellationToken cancellationToken = default)
     {
-        var issue = await jiraClient.CreateIssueAsync(projectKey, issueType, summary, description, parentKey, labels, cancellationToken);
+        var issue = await jiraClient.CreateIssueAsync(projectKey, issueType, summary, description, customFields, parentKey, labels, cancellationToken);
 
         if (issue is null)
         {
@@ -53,9 +61,14 @@ public class JiraService(IJiraClient jiraClient) : IJiraService
         return Result.Ok(issue);
     }
 
-    public async Task<Result<Issue>> UpdateIssueAsync(string issueKeyOrId, string? summary, string? description, CancellationToken cancellationToken = default)
+    public async Task<Result<Issue>> UpdateIssueAsync(
+        string issueKeyOrId,
+        string? summary,
+        string? description,
+        Dictionary<string, string?>? customFields,
+        CancellationToken cancellationToken = default)
     {
-        var issue = await jiraClient.UpdateIssueAsync(issueKeyOrId, summary, description, cancellationToken);
+        var issue = await jiraClient.UpdateIssueAsync(issueKeyOrId, summary, description, customFields, cancellationToken);
 
         if (issue is null)
         {

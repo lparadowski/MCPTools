@@ -10,5 +10,6 @@ public class MappingConfig
     {
         config.NewConfig<Space, SpaceResponse>();
         config.NewConfig<Page, PageResponse>();
+        config.NewConfig<SearchResult, SearchResultResponse>();
     }
 }
