@@ -3,6 +3,7 @@ using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Miro.Api.Extensions;
+using Miro.Api.Requests;
 using Miro.Api.Responses;
 using Miro.Application.Services;
 using Miro.Domain.Entities;
@@ -36,5 +37,39 @@ public class BoardsController(IMiroService miroService) : ControllerBase
     {
         var result = await miroService.GetStickyNotesByBoardIdAsync(id, cancellationToken);
         return result.ToGetResult<StickyNote, StickyNoteResponse>(s => s.Adapt<StickyNoteResponse>());
+    }
+
+    [HttpPost("{id}/sticky-notes")]
+    public async Task<Results<Ok<StickyNoteResponse>, BadRequest, NotFound, ProblemHttpResult>> CreateStickyNoteAsync(
+        string id, [FromBody] CreateStickyNoteRequest request, CancellationToken cancellationToken)
+    {
+        var result = await miroService.CreateStickyNoteAsync(
+            id, request.Content, request.Shape, request.FillColor,
+            request.PositionX, request.PositionY, cancellationToken);
+        return result.ToGetResult<StickyNote, StickyNoteResponse>(s => s.Adapt<StickyNoteResponse>());
+    }
+
+    [HttpPatch("{id}/sticky-notes/{itemId}")]
+    public async Task<Results<Ok<StickyNoteResponse>, BadRequest, NotFound, ProblemHttpResult>> UpdateStickyNoteAsync(
+        string id, string itemId, [FromBody] UpdateStickyNoteRequest request, CancellationToken cancellationToken)
+    {
+        var result = await miroService.UpdateStickyNoteAsync(
+            id, itemId, request.Content, request.FillColor,
+            request.PositionX, request.PositionY, cancellationToken);
+        return result.ToGetResult<StickyNote, StickyNoteResponse>(s => s.Adapt<StickyNoteResponse>());
+    }
+
+    [HttpDelete("{id}/sticky-notes/{itemId}")]
+    public async Task<Results<Ok, ProblemHttpResult>> DeleteStickyNoteAsync(
+        string id, string itemId, CancellationToken cancellationToken)
+    {
+        var result = await miroService.DeleteStickyNoteAsync(id, itemId, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return TypedResults.Ok();
+        }
+
+        return TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
     }
 }
