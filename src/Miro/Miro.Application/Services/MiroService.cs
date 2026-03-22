@@ -10,6 +10,9 @@ public interface IMiroService
     Task<Result<List<Board>>> GetBoardsAsync(CancellationToken cancellationToken = default);
     Task<Result<Board>> GetBoardByIdAsync(string boardId, CancellationToken cancellationToken = default);
     Task<Result<List<StickyNote>>> GetStickyNotesByBoardIdAsync(string boardId, CancellationToken cancellationToken = default);
+    Task<Result<StickyNote>> CreateStickyNoteAsync(string boardId, string? content, string? shape, string? fillColor, double? positionX, double? positionY, CancellationToken cancellationToken = default);
+    Task<Result<StickyNote>> UpdateStickyNoteAsync(string boardId, string itemId, string? content, string? fillColor, double? positionX, double? positionY, CancellationToken cancellationToken = default);
+    Task<Result<bool>> DeleteStickyNoteAsync(string boardId, string itemId, CancellationToken cancellationToken = default);
 }
 
 public class MiroService(IMiroClient miroClient) : IMiroService
@@ -36,5 +39,35 @@ public class MiroService(IMiroClient miroClient) : IMiroService
     {
         var stickyNotes = await miroClient.GetStickyNotesByBoardIdAsync(boardId, cancellationToken);
         return Result.Ok(stickyNotes);
+    }
+
+    public async Task<Result<StickyNote>> CreateStickyNoteAsync(string boardId, string? content, string? shape, string? fillColor, double? positionX, double? positionY, CancellationToken cancellationToken = default)
+    {
+        var stickyNote = await miroClient.CreateStickyNoteAsync(boardId, content, shape, fillColor, positionX, positionY, cancellationToken);
+
+        if (stickyNote is null)
+        {
+            return Result.Fail<StickyNote>(new EntityDoesNotExistError());
+        }
+
+        return Result.Ok(stickyNote);
+    }
+
+    public async Task<Result<StickyNote>> UpdateStickyNoteAsync(string boardId, string itemId, string? content, string? fillColor, double? positionX, double? positionY, CancellationToken cancellationToken = default)
+    {
+        var stickyNote = await miroClient.UpdateStickyNoteAsync(boardId, itemId, content, fillColor, positionX, positionY, cancellationToken);
+
+        if (stickyNote is null)
+        {
+            return Result.Fail<StickyNote>(new EntityDoesNotExistError());
+        }
+
+        return Result.Ok(stickyNote);
+    }
+
+    public async Task<Result<bool>> DeleteStickyNoteAsync(string boardId, string itemId, CancellationToken cancellationToken = default)
+    {
+        var success = await miroClient.DeleteStickyNoteAsync(boardId, itemId, cancellationToken);
+        return Result.Ok(success);
     }
 }
