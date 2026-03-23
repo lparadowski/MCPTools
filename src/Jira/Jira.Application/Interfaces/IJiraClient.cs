@@ -53,4 +53,8 @@ public interface IJiraClient
     // Sprints
     Task<List<Sprint>> GetSprintsAsync(int boardId, CancellationToken cancellationToken = default);
     Task<bool> MoveIssuesToSprintAsync(int sprintId, List<string> issueKeys, CancellationToken cancellationToken = default);
+
+    // Worklogs
+    Task<List<Worklog>> GetWorklogsAsync(string issueKeyOrId, CancellationToken cancellationToken = default);
+    Task<Worklog?> AddWorklogAsync(string issueKeyOrId, string timeSpent, string? comment, DateTime? started, CancellationToken cancellationToken = default);
 }

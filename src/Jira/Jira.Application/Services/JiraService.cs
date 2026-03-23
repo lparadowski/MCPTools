@@ -229,4 +229,24 @@ public class JiraService(IJiraClient jiraClient) : IJiraService
 
         return Result.Ok();
     }
+
+    // Worklogs
+
+    public async Task<Result<List<Worklog>>> GetWorklogsAsync(string issueKeyOrId, CancellationToken cancellationToken = default)
+    {
+        var worklogs = await jiraClient.GetWorklogsAsync(issueKeyOrId, cancellationToken);
+        return Result.Ok(worklogs);
+    }
+
+    public async Task<Result<Worklog>> AddWorklogAsync(string issueKeyOrId, string timeSpent, string? comment, DateTime? started, CancellationToken cancellationToken = default)
+    {
+        var worklog = await jiraClient.AddWorklogAsync(issueKeyOrId, timeSpent, comment, started, cancellationToken);
+
+        if (worklog is null)
+        {
+            return Result.Fail<Worklog>(new OperationFailedError());
+        }
+
+        return Result.Ok(worklog);
+    }
 }
