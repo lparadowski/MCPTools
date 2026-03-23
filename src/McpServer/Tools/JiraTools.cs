@@ -249,4 +249,31 @@ public static class JiraTools
         var response = await http.PostAsJsonAsync($"/api/v1/sprints/{sprintId}/issues", new { issueKeys = keys });
         return await response.Content.ReadAsStringAsync();
     }
+
+    // Worklogs
+
+    [McpServerTool(Name = "get_jira_worklogs")]
+    [Description("Get all worklog entries for a Jira issue (time tracked).")]
+    public static async Task<string> GetWorklogs(
+        IHttpClientFactory httpFactory,
+        [Description("The issue key (e.g. 'PROJ-123')")] string issueKeyOrId)
+    {
+        var http = httpFactory.CreateClient("JiraApi");
+        var response = await http.GetAsync($"/api/v1/issues/{issueKeyOrId}/worklogs");
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    [McpServerTool(Name = "log_jira_work")]
+    [Description("Log time spent on a Jira issue. Time format examples: '2h', '3d', '1h 30m', '4h 30m'.")]
+    public static async Task<string> LogWork(
+        IHttpClientFactory httpFactory,
+        [Description("The issue key (e.g. 'PROJ-123')")] string issueKeyOrId,
+        [Description("Time spent (e.g. '2h', '3d', '1h 30m')")] string timeSpent,
+        [Description("Optional comment describing the work done")] string? comment = null,
+        [Description("When the work was started (ISO 8601 format, defaults to now)")] DateTime? started = null)
+    {
+        var http = httpFactory.CreateClient("JiraApi");
+        var response = await http.PostAsJsonAsync($"/api/v1/issues/{issueKeyOrId}/worklogs", new { timeSpent, comment, started });
+        return await response.Content.ReadAsStringAsync();
+    }
 }
