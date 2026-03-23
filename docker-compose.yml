@@ -9,6 +9,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - InfrastructureSettings__TrelloApiKey=${TRELLO_API_KEY}
       - InfrastructureSettings__TrelloApiToken=${TRELLO_TOKEN}
+      - InfrastructureSettings__DisableSslValidation=${DISABLE_SSL_VALIDATION:-false}
     restart: unless-stopped
 
   confluence-api:

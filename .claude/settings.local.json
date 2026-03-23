@@ -5,5 +5,9 @@
       "WebFetch(domain:developers.miro.com)",
       "mcp__project-tools__add_label_to_trello_card"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "project-tools"
+  ],
+  "enableAllProjectMcpServers": true
 }
