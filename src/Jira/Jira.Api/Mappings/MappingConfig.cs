@@ -14,5 +14,6 @@ public class MappingConfig
         config.NewConfig<Comment, CommentResponse>();
         config.NewConfig<Board, BoardResponse>();
         config.NewConfig<Sprint, SprintResponse>();
+        config.NewConfig<Worklog, WorklogResponse>();
     }
 }

@@ -385,6 +385,47 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return response.IsSuccessStatusCode;
     }
 
+    // Worklogs
+
+    public async Task<List<Worklog>> GetWorklogsAsync(string issueKeyOrId, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("JiraApi");
+        var response = await http.GetAsync($"/rest/api/3/issue/{issueKeyOrId}/worklog", cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<JiraWorklogsResponseDto>(JsonOptions, cancellationToken);
+        return result?.Worklogs?.Select(w => w.Adapt<Worklog>()).ToList() ?? [];
+    }
+
+    public async Task<Worklog?> AddWorklogAsync(string issueKeyOrId, string timeSpent, string? comment, DateTime? started, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("JiraApi");
+        var payload = new Dictionary<string, object?>
+        {
+            ["timeSpent"] = timeSpent
+        };
+
+        if (started is not null)
+        {
+            payload["started"] = started.Value.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz");
+        }
+
+        if (comment is not null)
+        {
+            payload["comment"] = CreateDocument(comment);
+        }
+
+        var response = await http.PostAsJsonAsync($"/rest/api/3/issue/{issueKeyOrId}/worklog", payload, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        var dto = await response.Content.ReadFromJsonAsync<JiraWorklogDto>(JsonOptions, cancellationToken);
+        return dto?.Adapt<Worklog>();
+    }
+
     private static void AddCustomFields(Dictionary<string, object?> fields, Dictionary<string, string?>? customFields)
     {
         if (customFields is null)

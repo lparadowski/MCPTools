@@ -62,5 +62,15 @@ public class MappingConfig
             .Map(dest => dest.Goal, src => src.Goal)
             .Map(dest => dest.StartDate, src => src.StartDate != null ? DateTime.Parse(src.StartDate) : (DateTime?)null)
             .Map(dest => dest.EndDate, src => src.EndDate != null ? DateTime.Parse(src.EndDate) : (DateTime?)null);
+
+        config.NewConfig<JiraWorklogDto, Worklog>()
+            .Map(dest => dest.Id, src => src.Id ?? string.Empty)
+            .Map(dest => dest.AuthorDisplayName, src => src.Author != null ? src.Author.DisplayName : null)
+            .Map(dest => dest.TimeSpent, src => src.TimeSpent)
+            .Map(dest => dest.TimeSpentSeconds, src => src.TimeSpentSeconds)
+            .Map(dest => dest.Comment, src => JiraDocumentParser.ExtractPlainText(src.Comment))
+            .Map(dest => dest.Started, src => src.Started != null ? DateTime.Parse(src.Started) : (DateTime?)null)
+            .Map(dest => dest.Created, src => src.Created != null ? DateTime.Parse(src.Created) : (DateTime?)null)
+            .Map(dest => dest.Updated, src => src.Updated != null ? DateTime.Parse(src.Updated) : (DateTime?)null);
     }
 }
