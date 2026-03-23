@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # Environment files (contain secrets)
 .env
+
+# Claude Code MCP config (contains local paths)
+.mcp.json
