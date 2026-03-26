@@ -5,6 +5,7 @@ using Confluence.Application;
 using Confluence.Infrastructure;
 using Confluence.Infrastructure.Settings;
 using Mapster;
+using Shared.Application.Chunking;
 using Serilog;
 using System.Text.Json.Serialization;
 
@@ -46,6 +47,13 @@ builder.Services.AddApiVersioning(options =>
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ReportApiVersions = true;
 });
+
+// Add chunking settings
+var chunkingSettings = builder.Configuration
+    .GetSection("ChunkingSettings")
+    .Get<ChunkingSettings>() ?? new ChunkingSettings();
+
+builder.Services.AddSingleton(chunkingSettings);
 
 // Add application services
 builder.Services.AddApplicationServices();

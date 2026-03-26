@@ -58,4 +58,7 @@ public interface IJiraService
     // Worklogs
     Task<Result<List<Worklog>>> GetWorklogsAsync(string issueKeyOrId, CancellationToken cancellationToken = default);
     Task<Result<Worklog>> AddWorklogAsync(string issueKeyOrId, string timeSpent, string? comment, DateTime? started, CancellationToken cancellationToken = default);
+
+    // Fields
+    Task<Result<Dictionary<string, string>>> GetFieldsAsync(CancellationToken cancellationToken = default);
 }
