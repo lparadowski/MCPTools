@@ -2,6 +2,7 @@ using Confluence.Application.Interfaces;
 using Confluence.Application.ResultErrors;
 using Confluence.Domain.Entities;
 using FluentResults;
+using Shared.Application.Chunking;
 
 namespace Confluence.Application.Services;
 
@@ -13,13 +14,14 @@ public interface IConfluenceService
     Task<Result> DeleteSpaceAsync(string spaceId, CancellationToken cancellationToken = default);
     Task<Result<List<Page>>> GetPagesBySpaceIdAsync(string spaceId, CancellationToken cancellationToken = default);
     Task<Result<Page>> GetPageByIdAsync(string pageId, CancellationToken cancellationToken = default);
+    Task<Result<ChunkedResult<Page>>> GetPageByIdAsync(string pageId, int offset, int maxLength, CancellationToken cancellationToken = default);
     Task<Result<Page>> CreatePageAsync(string spaceId, string title, string? body, string? parentId, CancellationToken cancellationToken = default);
     Task<Result<Page>> UpdatePageAsync(string pageId, string title, string? body, int version, CancellationToken cancellationToken = default);
     Task<Result> DeletePageAsync(string pageId, CancellationToken cancellationToken = default);
     Task<Result<List<SearchResult>>> SearchAsync(string cql, int maxResults = 25, CancellationToken cancellationToken = default);
 }
 
-public class ConfluenceService(IConfluenceClient confluenceClient) : IConfluenceService
+public class ConfluenceService(IConfluenceClient confluenceClient, ChunkingSettings chunkingSettings) : IConfluenceService
 {
     public async Task<Result<List<Space>>> GetSpacesAsync(CancellationToken cancellationToken = default)
     {
@@ -79,6 +81,28 @@ public class ConfluenceService(IConfluenceClient confluenceClient) : IConfluence
         }
 
         return Result.Ok(page);
+    }
+
+    public async Task<Result<ChunkedResult<Page>>> GetPageByIdAsync(string pageId, int offset, int maxLength, CancellationToken cancellationToken = default)
+    {
+        var page = await confluenceClient.GetPageByIdAsync(pageId, cancellationToken);
+
+        if (page is null)
+        {
+            return Result.Fail<ChunkedResult<Page>>(new EntityDoesNotExistError());
+        }
+
+        var effectiveMaxLength = maxLength > 0 ? maxLength : chunkingSettings.DefaultMaxLength;
+        var result = new ChunkedResult<Page> { Value = page };
+
+        if (!string.IsNullOrEmpty(page.Body) && page.Body.Length > effectiveMaxLength)
+        {
+            var chunked = ContentChunker.Chunk(page.Body, offset, effectiveMaxLength);
+            page.Body = chunked.Content;
+            result.ChunkMetadata = chunked;
+        }
+
+        return Result.Ok(result);
     }
 
     public async Task<Result<Page>> CreatePageAsync(string spaceId, string title, string? body, string? parentId, CancellationToken cancellationToken = default)

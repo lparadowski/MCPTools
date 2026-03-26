@@ -249,4 +249,12 @@ public class JiraService(IJiraClient jiraClient) : IJiraService
 
         return Result.Ok(worklog);
     }
+
+    // Fields
+
+    public async Task<Result<Dictionary<string, string>>> GetFieldsAsync(CancellationToken cancellationToken = default)
+    {
+        var fields = await jiraClient.GetFieldsAsync(cancellationToken);
+        return Result.Ok(fields);
+    }
 }

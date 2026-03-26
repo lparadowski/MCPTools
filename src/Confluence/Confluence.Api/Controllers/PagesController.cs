@@ -7,6 +7,7 @@ using Confluence.Domain.Entities;
 using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Application.Chunking;
 
 namespace Confluence.Api.Controllers;
 
@@ -25,10 +26,23 @@ public class PagesController(IConfluenceService confluenceService) : ControllerB
 
     [HttpGet("{id}")]
     public async Task<Results<Ok<PageResponse>, BadRequest, NotFound, ProblemHttpResult>> GetPageByIdAsync(
-        string id, CancellationToken cancellationToken)
+        string id, [FromQuery] int offset = 0, [FromQuery] int maxLength = 0,
+        CancellationToken cancellationToken = default)
     {
-        var result = await confluenceService.GetPageByIdAsync(id, cancellationToken);
-        return result.ToGetResult<Page, PageResponse>(p => p.Adapt<PageResponse>());
+        var result = await confluenceService.GetPageByIdAsync(id, offset, maxLength, cancellationToken);
+        return result.ToGetResult<ChunkedResult<Page>, PageResponse>(chunkedResult =>
+        {
+            var response = chunkedResult.Value.Adapt<PageResponse>();
+
+            if (chunkedResult.ChunkMetadata is not null)
+            {
+                response.TotalBodyLength = chunkedResult.ChunkMetadata.TotalLength;
+                response.HasMore = chunkedResult.ChunkMetadata.HasMore;
+                response.NextOffset = chunkedResult.ChunkMetadata.NextOffset;
+            }
+
+            return response;
+        });
     }
 
     [HttpPost]
