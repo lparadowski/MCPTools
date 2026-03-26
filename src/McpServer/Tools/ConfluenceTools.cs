@@ -63,13 +63,15 @@ public static class ConfluenceTools
     }
 
     [McpServerTool(Name = "get_confluence_page")]
-    [Description("Get a Confluence page by ID, including its body content and version number.")]
+    [Description("Get a Confluence page by ID, including its body content and version number. Large pages are returned in chunks — use offset/maxLength to paginate through the body content. If hasMore is true, call again with the nextOffset value.")]
     public static async Task<string> GetPage(
         IHttpClientFactory httpFactory,
-        [Description("The Confluence page ID")] string pageId)
+        [Description("The Confluence page ID")] string pageId,
+        [Description("Character offset into the body content. Default: 0")] int offset = 0,
+        [Description("Max characters to return in the body. 0 = use server-configured default")] int maxLength = 0)
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
-        var response = await http.GetAsync($"/api/v1/pages/{pageId}");
+        var response = await http.GetAsync($"/api/v1/pages/{pageId}?offset={offset}&maxLength={maxLength}");
         return await response.Content.ReadAsStringAsync();
     }
 

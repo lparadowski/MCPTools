@@ -14,8 +14,8 @@ services:
 
   confluence-api:
     build:
-      context: ./src/Confluence
-      dockerfile: Confluence.Api/Dockerfile
+      context: ./src
+      dockerfile: Confluence/Confluence.Api/Dockerfile
     ports:
       - "5003:8080"
     environment:
@@ -23,6 +23,7 @@ services:
       - InfrastructureSettings__ConfluenceBaseUrl=${CONFLUENCE_BASE_URL}
       - InfrastructureSettings__ConfluenceEmail=${CONFLUENCE_EMAIL}
       - InfrastructureSettings__ConfluenceApiToken=${CONFLUENCE_API_TOKEN}
+      - ChunkingSettings__DefaultMaxLength=${CONFLUENCE_DEFAULT_MAX_CHUNK_LENGTH:-20000}
     restart: unless-stopped
 
   miro-api:

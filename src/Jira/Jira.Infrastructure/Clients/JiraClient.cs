@@ -407,7 +407,7 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 
         if (started is not null)
         {
-            payload["started"] = started.Value.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz");
+            payload["started"] = started.Value.ToString("yyyy-MM-dd'T'HH:mm:ss.fff") + started.Value.ToString("zzz").Replace(":", "");
         }
 
         if (comment is not null)
@@ -424,6 +424,33 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 
         var dto = await response.Content.ReadFromJsonAsync<JiraWorklogDto>(JsonOptions, cancellationToken);
         return dto?.Adapt<Worklog>();
+    }
+
+    // Fields
+
+    public async Task<Dictionary<string, string>> GetFieldsAsync(CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("JiraApi");
+        var response = await http.GetAsync("/rest/api/3/field", cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var fields = await response.Content.ReadFromJsonAsync<List<JsonElement>>(JsonOptions, cancellationToken);
+        var result = new Dictionary<string, string>();
+
+        if (fields is not null)
+        {
+            foreach (var field in fields)
+            {
+                var id = field.GetProperty("id").GetString();
+                var name = field.GetProperty("name").GetString();
+                if (id is not null && name is not null)
+                {
+                    result[id] = name;
+                }
+            }
+        }
+
+        return result;
     }
 
     private static void AddCustomFields(Dictionary<string, object?> fields, Dictionary<string, string?>? customFields)

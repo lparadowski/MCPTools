@@ -9,4 +9,7 @@ public class PageResponse
     public string? Status { get; set; }
     public string? Body { get; set; }
     public int Version { get; set; }
+    public int? TotalBodyLength { get; set; }
+    public bool? HasMore { get; set; }
+    public int? NextOffset { get; set; }
 }

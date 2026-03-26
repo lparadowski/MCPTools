@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Confluence.Domain\Confluence.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Application\Shared.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
