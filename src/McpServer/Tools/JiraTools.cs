@@ -276,4 +276,15 @@ public static class JiraTools
         var response = await http.PostAsJsonAsync($"/api/v1/issues/{issueKeyOrId}/worklogs", new { timeSpent, comment, started });
         return await response.Content.ReadAsStringAsync();
     }
+
+    // Fields
+
+    [McpServerTool(Name = "list_jira_fields")]
+    [Description("List all Jira fields with their IDs and display names. Use this to find custom field IDs (e.g. customfield_XXXXX) for fields like 'Acceptance Criteria', 'Story Points', etc.")]
+    public static async Task<string> ListFields(IHttpClientFactory httpFactory)
+    {
+        var http = httpFactory.CreateClient("JiraApi");
+        var response = await http.GetAsync("/api/v1/fields");
+        return await response.Content.ReadAsStringAsync();
+    }
 }
