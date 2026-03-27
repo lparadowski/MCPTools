@@ -238,6 +238,12 @@ public class JiraService(IJiraClient jiraClient) : IJiraService
         return Result.Ok(worklogs);
     }
 
+    public async Task<Result<List<Worklog>>> GetUserWorklogsAsync(string username, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    {
+        var worklogs = await jiraClient.GetUserWorklogsAsync(username, startDate, endDate, cancellationToken);
+        return Result.Ok(worklogs);
+    }
+
     public async Task<Result<Worklog>> AddWorklogAsync(string issueKeyOrId, string timeSpent, string? comment, DateTime? started, CancellationToken cancellationToken = default)
     {
         var worklog = await jiraClient.AddWorklogAsync(issueKeyOrId, timeSpent, comment, started, cancellationToken);
@@ -248,6 +254,38 @@ public class JiraService(IJiraClient jiraClient) : IJiraService
         }
 
         return Result.Ok(worklog);
+    }
+
+    public async Task<Result<Worklog>> UpdateWorklogAsync(string issueKeyOrId, string worklogId, string timeSpent, string? comment, DateTime? started, CancellationToken cancellationToken = default)
+    {
+        var worklog = await jiraClient.UpdateWorklogAsync(issueKeyOrId, worklogId, timeSpent, comment, started, cancellationToken);
+
+        if (worklog is null)
+        {
+            return Result.Fail<Worklog>(new OperationFailedError());
+        }
+
+        return Result.Ok(worklog);
+    }
+
+    public async Task<Result> DeleteWorklogAsync(string issueKeyOrId, string worklogId, CancellationToken cancellationToken = default)
+    {
+        var success = await jiraClient.DeleteWorklogAsync(issueKeyOrId, worklogId, cancellationToken);
+
+        if (!success)
+        {
+            return Result.Fail(new OperationFailedError());
+        }
+
+        return Result.Ok();
+    }
+
+    // Activity
+
+    public async Task<Result<List<UserActivity>>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    {
+        var activity = await jiraClient.GetUserActivityAsync(accountId, startDate, endDate, cancellationToken);
+        return Result.Ok(activity);
     }
 
     // Fields
