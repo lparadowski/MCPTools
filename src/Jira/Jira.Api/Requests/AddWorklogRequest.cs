@@ -4,5 +4,5 @@ public class AddWorklogRequest
 {
     public required string TimeSpent { get; set; }
     public string? Comment { get; set; }
-    public DateTime? Started { get; set; }
+    public DateTimeOffset? Started { get; set; }
 }

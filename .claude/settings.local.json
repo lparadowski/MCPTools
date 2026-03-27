@@ -3,11 +3,14 @@
     "allow": [
       "WebSearch",
       "WebFetch(domain:developers.miro.com)",
-      "mcp__project-tools__add_label_to_trello_card"
+      "mcp__project-tools__add_label_to_trello_card",
+      "mcp__project-tools__get_jira_user_activity",
+      "mcp__project-tools__search_confluence",
+      "mcp__project-tools__get_confluence_page"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "project-tools"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

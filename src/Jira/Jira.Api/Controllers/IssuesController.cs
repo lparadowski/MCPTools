@@ -131,7 +131,7 @@ public class IssuesController(IJiraService jiraService) : ControllerBase
     public async Task<Results<Ok<WorklogResponse>, BadRequest, NotFound, ProblemHttpResult>> AddWorklogAsync(
         string issueKeyOrId, [FromBody] AddWorklogRequest request, CancellationToken cancellationToken)
     {
-        var result = await jiraService.AddWorklogAsync(issueKeyOrId, request.TimeSpent, request.Comment, request.Started, cancellationToken);
+        var result = await jiraService.AddWorklogAsync(issueKeyOrId, request.TimeSpent, request.Comment, request.Started?.DateTime, cancellationToken);
         return result.ToPutResult<Worklog, WorklogResponse>(w => w.Adapt<WorklogResponse>());
     }
 }
