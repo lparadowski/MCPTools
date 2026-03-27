@@ -4,6 +4,7 @@ using System.Text.Json;
 using Jira.Application.Interfaces;
 using Jira.Domain.Entities;
 using Jira.Infrastructure.Dtos;
+using Jira.Infrastructure.Parsing;
 using Mapster;
 
 namespace Jira.Infrastructure.Clients;
@@ -397,6 +398,34 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return result?.Worklogs?.Select(w => w.Adapt<Worklog>()).ToList() ?? [];
     }
 
+    public async Task<List<Worklog>> GetUserWorklogsAsync(string username, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    {
+        var jql = $"worklogAuthor = \"{username}\" AND worklogDate >= \"{startDate:yyyy-MM-dd}\" AND worklogDate <= \"{endDate:yyyy-MM-dd}\"";
+        var issues = await SearchIssuesAsync(jql, 200, cancellationToken);
+
+        var allWorklogs = new List<Worklog>();
+
+        foreach (var issue in issues)
+        {
+            var worklogs = await GetWorklogsAsync(issue.Key, cancellationToken);
+
+            foreach (var worklog in worklogs)
+            {
+                if (worklog.Started is not null
+                    && worklog.Started.Value.Date >= startDate.Date
+                    && worklog.Started.Value.Date <= endDate.Date
+                    && (string.Equals(worklog.AuthorDisplayName, username, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(worklog.AuthorAccountId, username, StringComparison.OrdinalIgnoreCase)))
+                {
+                    worklog.IssueKey = issue.Key;
+                    allWorklogs.Add(worklog);
+                }
+            }
+        }
+
+        return allWorklogs.OrderBy(w => w.Started).ToList();
+    }
+
     public async Task<Worklog?> AddWorklogAsync(string issueKeyOrId, string timeSpent, string? comment, DateTime? started, CancellationToken cancellationToken = default)
     {
         var http = httpClientFactory.CreateClient("JiraApi");
@@ -424,6 +453,147 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 
         var dto = await response.Content.ReadFromJsonAsync<JiraWorklogDto>(JsonOptions, cancellationToken);
         return dto?.Adapt<Worklog>();
+    }
+
+    public async Task<Worklog?> UpdateWorklogAsync(string issueKeyOrId, string worklogId, string timeSpent, string? comment, DateTime? started, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("JiraApi");
+        var payload = new Dictionary<string, object?>
+        {
+            ["timeSpent"] = timeSpent
+        };
+
+        if (started is not null)
+        {
+            payload["started"] = started.Value.ToString("yyyy-MM-dd'T'HH:mm:ss.fff") + started.Value.ToString("zzz").Replace(":", "");
+        }
+
+        if (comment is not null)
+        {
+            payload["comment"] = CreateDocument(comment);
+        }
+
+        var response = await http.PutAsJsonAsync($"/rest/api/3/issue/{issueKeyOrId}/worklog/{worklogId}", payload, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        var dto = await response.Content.ReadFromJsonAsync<JiraWorklogDto>(JsonOptions, cancellationToken);
+        return dto?.Adapt<Worklog>();
+    }
+
+    public async Task<bool> DeleteWorklogAsync(string issueKeyOrId, string worklogId, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("JiraApi");
+        var response = await http.DeleteAsync($"/rest/api/3/issue/{issueKeyOrId}/worklog/{worklogId}", cancellationToken);
+        return response.IsSuccessStatusCode;
+    }
+
+    // Activity
+
+    public async Task<List<UserActivity>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("JiraApi");
+        var activities = new Dictionary<DateTime, UserActivity>();
+
+        for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+        {
+            activities[date] = new UserActivity { Date = date };
+        }
+
+        // 1. Tickets assigned to user on each day
+        var assignedJql = $"assignee WAS \"{accountId}\" DURING (\"{startDate:yyyy-MM-dd}\", \"{endDate.AddDays(1):yyyy-MM-dd}\")";
+        var assignedIssues = await SearchIssuesAsync(assignedJql, 200, cancellationToken);
+
+        foreach (var issue in assignedIssues)
+        {
+            foreach (var date in activities.Keys)
+            {
+                activities[date].AssignedIssues.Add(new AssignedIssue
+                {
+                    Key = issue.Key,
+                    Summary = issue.Summary,
+                    Status = issue.Status
+                });
+            }
+        }
+
+        // 2. For each assigned issue, fetch changelog and comments to find user's activity
+        foreach (var issue in assignedIssues)
+        {
+            // Fetch changelog
+            var changelogResponse = await http.GetAsync($"/rest/api/3/issue/{issue.Key}/changelog", cancellationToken);
+
+            if (changelogResponse.IsSuccessStatusCode)
+            {
+                var changelog = await changelogResponse.Content.ReadFromJsonAsync<JiraChangelogResponseDto>(JsonOptions, cancellationToken);
+
+                if (changelog?.Values is not null)
+                {
+                    foreach (var history in changelog.Values)
+                    {
+                        if (history.Author?.AccountId != accountId || history.Created is null)
+                        {
+                            continue;
+                        }
+
+                        var changed = DateTime.Parse(history.Created);
+                        var changedDate = changed.Date;
+
+                        if (!activities.ContainsKey(changedDate) || history.Items is null)
+                        {
+                            continue;
+                        }
+
+                        foreach (var item in history.Items)
+                        {
+                            activities[changedDate].Changes.Add(new ChangelogEntry
+                            {
+                                IssueKey = issue.Key,
+                                IssueSummary = issue.Summary,
+                                Field = item.Field ?? string.Empty,
+                                From = item.FromString,
+                                To = item.ToString,
+                                Changed = changed
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Fetch comments
+            var comments = await GetCommentsAsync(issue.Key, cancellationToken);
+
+            foreach (var comment in comments)
+            {
+                if (comment.AuthorDisplayName is null || comment.Created is null)
+                {
+                    continue;
+                }
+
+                var createdDate = comment.Created.Value.Date;
+
+                if (!activities.ContainsKey(createdDate))
+                {
+                    continue;
+                }
+
+                activities[createdDate].Comments.Add(new ActivityComment
+                {
+                    IssueKey = issue.Key,
+                    IssueSummary = issue.Summary,
+                    Body = comment.Body,
+                    Created = comment.Created.Value
+                });
+            }
+        }
+
+        return activities.Values
+            .Where(a => a.Changes.Count > 0 || a.Comments.Count > 0 || a.AssignedIssues.Count > 0)
+            .OrderBy(a => a.Date)
+            .ToList();
     }
 
     // Fields

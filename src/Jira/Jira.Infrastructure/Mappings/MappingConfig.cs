@@ -65,6 +65,7 @@ public class MappingConfig
 
         config.NewConfig<JiraWorklogDto, Worklog>()
             .Map(dest => dest.Id, src => src.Id ?? string.Empty)
+            .Map(dest => dest.AuthorAccountId, src => src.Author != null ? src.Author.AccountId : null)
             .Map(dest => dest.AuthorDisplayName, src => src.Author != null ? src.Author.DisplayName : null)
             .Map(dest => dest.TimeSpent, src => src.TimeSpent)
             .Map(dest => dest.TimeSpentSeconds, src => src.TimeSpentSeconds)
