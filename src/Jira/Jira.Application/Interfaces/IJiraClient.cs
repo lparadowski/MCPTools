@@ -57,6 +57,12 @@ public interface IJiraClient
     // Worklogs
     Task<List<Worklog>> GetWorklogsAsync(string issueKeyOrId, CancellationToken cancellationToken = default);
     Task<Worklog?> AddWorklogAsync(string issueKeyOrId, string timeSpent, string? comment, DateTime? started, CancellationToken cancellationToken = default);
+    Task<List<Worklog>> GetUserWorklogsAsync(string username, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    Task<Worklog?> UpdateWorklogAsync(string issueKeyOrId, string worklogId, string timeSpent, string? comment, DateTime? started, CancellationToken cancellationToken = default);
+    Task<bool> DeleteWorklogAsync(string issueKeyOrId, string worklogId, CancellationToken cancellationToken = default);
+
+    // Activity
+    Task<List<UserActivity>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
 
     // Fields
     Task<Dictionary<string, string>> GetFieldsAsync(CancellationToken cancellationToken = default);

@@ -263,6 +263,19 @@ public static class JiraTools
         return await response.Content.ReadAsStringAsync();
     }
 
+    [McpServerTool(Name = "search_jira_user_worklogs")]
+    [Description("Search for all worklogs logged by a specific user within a date range. Returns worklogs with issue keys, time spent, and dates.")]
+    public static async Task<string> SearchUserWorklogs(
+        IHttpClientFactory httpFactory,
+        [Description("The Jira username or account ID of the user")] string username,
+        [Description("Start date (ISO 8601 format, e.g. '2025-03-01')")] DateTime startDate,
+        [Description("End date (ISO 8601 format, e.g. '2025-03-31')")] DateTime endDate)
+    {
+        var http = httpFactory.CreateClient("JiraApi");
+        var response = await http.GetAsync($"/api/v1/worklogs?username={Uri.EscapeDataString(username)}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}");
+        return await response.Content.ReadAsStringAsync();
+    }
+
     [McpServerTool(Name = "log_jira_work")]
     [Description("Log time spent on a Jira issue. Time format examples: '2h', '3d', '1h 30m', '4h 30m'.")]
     public static async Task<string> LogWork(
@@ -274,6 +287,48 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PostAsJsonAsync($"/api/v1/issues/{issueKeyOrId}/worklogs", new { timeSpent, comment, started });
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    [McpServerTool(Name = "update_jira_worklog")]
+    [Description("Update an existing worklog entry on a Jira issue. Use search_jira_user_worklogs to find worklog IDs.")]
+    public static async Task<string> UpdateWorklog(
+        IHttpClientFactory httpFactory,
+        [Description("The issue key (e.g. 'PROJ-123')")] string issueKeyOrId,
+        [Description("The worklog ID to update")] string worklogId,
+        [Description("Time spent (e.g. '2h', '3d', '1h 30m')")] string timeSpent,
+        [Description("Optional comment describing the work done")] string? comment = null,
+        [Description("When the work was started (ISO 8601 format)")] DateTime? started = null)
+    {
+        var http = httpFactory.CreateClient("JiraApi");
+        var response = await http.PutAsJsonAsync($"/api/v1/worklogs/{issueKeyOrId}/{worklogId}", new { timeSpent, comment, started });
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    [McpServerTool(Name = "delete_jira_worklog")]
+    [Description("Delete a worklog entry from a Jira issue. Use search_jira_user_worklogs to find worklog IDs.")]
+    public static async Task<string> DeleteWorklog(
+        IHttpClientFactory httpFactory,
+        [Description("The issue key (e.g. 'PROJ-123')")] string issueKeyOrId,
+        [Description("The worklog ID to delete")] string worklogId)
+    {
+        var http = httpFactory.CreateClient("JiraApi");
+        var response = await http.DeleteAsync($"/api/v1/worklogs/{issueKeyOrId}/{worklogId}");
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    // Activity
+
+    [McpServerTool(Name = "get_jira_user_activity")]
+    [Description("Get a user's Jira activity for a date range: tickets assigned, status transitions, field changes, and comments made. Useful for understanding what someone worked on each day.")]
+    public static async Task<string> GetUserActivity(
+        IHttpClientFactory httpFactory,
+        [Description("The user's Jira account ID")] string accountId,
+        [Description("Start date (ISO 8601 format, e.g. '2025-03-01')")] DateTime startDate,
+        [Description("End date (ISO 8601 format, e.g. '2025-03-31')")] DateTime endDate)
+    {
+        var http = httpFactory.CreateClient("JiraApi");
+        var response = await http.GetAsync($"/api/v1/activity?accountId={Uri.EscapeDataString(accountId)}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}");
         return await response.Content.ReadAsStringAsync();
     }
 
