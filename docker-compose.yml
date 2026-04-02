@@ -49,3 +49,15 @@ services:
       - InfrastructureSettings__JiraEmail=${JIRA_EMAIL}
       - InfrastructureSettings__JiraApiToken=${JIRA_API_TOKEN}
     restart: unless-stopped
+
+  azuredevops-api:
+    build:
+      context: ./src/AzureDevOps
+      dockerfile: AzureDevOps.Api/Dockerfile
+    ports:
+      - "5005:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__Organization=${AZURE_DEVOPS_ORGANIZATION}
+      - InfrastructureSettings__PersonalAccessToken=${AZURE_DEVOPS_PAT}
+    restart: unless-stopped
