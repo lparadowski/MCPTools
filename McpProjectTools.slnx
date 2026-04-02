@@ -29,6 +29,12 @@
     <Project Path="src/Jira/Jira.Domain/Jira.Domain.csproj" />
     <Project Path="src/Jira/Jira.Infrastructure/Jira.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/AzureDevOps/">
+    <Project Path="src/AzureDevOps/AzureDevOps.Api/AzureDevOps.Api.csproj" />
+    <Project Path="src/AzureDevOps/AzureDevOps.Application/AzureDevOps.Application.csproj" />
+    <Project Path="src/AzureDevOps/AzureDevOps.Domain/AzureDevOps.Domain.csproj" />
+    <Project Path="src/AzureDevOps/AzureDevOps.Infrastructure/AzureDevOps.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Shared/">
     <Project Path="src/Shared/Shared.Application/Shared.Application.csproj" />
   </Folder>

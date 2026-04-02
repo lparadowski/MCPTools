@@ -6,7 +6,11 @@
       "mcp__project-tools__add_label_to_trello_card",
       "mcp__project-tools__get_jira_user_activity",
       "mcp__project-tools__search_confluence",
-      "mcp__project-tools__get_confluence_page"
+      "mcp__project-tools__get_confluence_page",
+      "mcp__project-tools__list_trello_cards",
+      "mcp__project-tools__get_trello_board",
+      "mcp__project-tools__move_trello_card",
+      "mcp__project-tools__update_azure_work_item"
     ]
   },
   "enableAllProjectMcpServers": true,
