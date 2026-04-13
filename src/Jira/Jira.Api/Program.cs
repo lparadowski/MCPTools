@@ -1,11 +1,12 @@
 using Asp.Versioning;
-using Jira.Api.ExceptionHandler;
+using Shared.Api.ExceptionHandler;
 using Jira.Api.Mappings;
 using Jira.Application;
 using Jira.Infrastructure;
 using Jira.Infrastructure.Settings;
 using Mapster;
 using Serilog;
+using Shared.Application.Chunking;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +47,13 @@ builder.Services.AddApiVersioning(options =>
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ReportApiVersions = true;
 });
+
+// Add chunking settings
+var chunkingSettings = builder.Configuration
+    .GetSection("ChunkingSettings")
+    .Get<ChunkingSettings>() ?? new ChunkingSettings();
+
+builder.Services.AddSingleton(chunkingSettings);
 
 // Add application services
 builder.Services.AddApplicationServices();

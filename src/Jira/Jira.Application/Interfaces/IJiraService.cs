@@ -1,5 +1,6 @@
 using FluentResults;
 using Jira.Domain.Entities;
+using Shared.Application.Chunking;
 
 namespace Jira.Application.Interfaces;
 
@@ -19,7 +20,7 @@ public interface IJiraService
         string? parentKey,
         List<string>? labels,
         CancellationToken cancellationToken = default);
-    Task<Result<Issue>> GetIssueAsync(string issueKeyOrId, CancellationToken cancellationToken = default);
+    Task<Result<ChunkedResult<Issue>>> GetIssueAsync(string issueKeyOrId, int offset = 0, int maxLength = 0, CancellationToken cancellationToken = default);
     Task<Result<Issue>> UpdateIssueAsync(
         string issueKeyOrId,
         string? summary,
@@ -27,7 +28,7 @@ public interface IJiraService
         Dictionary<string, string?>? customFields,
         CancellationToken cancellationToken = default);
     Task<Result> DeleteIssueAsync(string issueKeyOrId, CancellationToken cancellationToken = default);
-    Task<Result<List<Issue>>> SearchIssuesAsync(string jql, int maxResults = 50, CancellationToken cancellationToken = default);
+    Task<Result<ChunkedResult<List<Issue>>>> SearchIssuesAsync(string jql, int offset = 0, int maxLength = 0, int maxResults = 50, CancellationToken cancellationToken = default);
 
     // Transitions
     Task<Result<List<Transition>>> GetTransitionsAsync(string issueKeyOrId, CancellationToken cancellationToken = default);
@@ -63,7 +64,7 @@ public interface IJiraService
     Task<Result> DeleteWorklogAsync(string issueKeyOrId, string worklogId, CancellationToken cancellationToken = default);
 
     // Activity
-    Task<Result<List<UserActivity>>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    Task<Result<ChunkedResult<List<UserActivity>>>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, int offset = 0, int maxLength = 0, CancellationToken cancellationToken = default);
 
     // Fields
     Task<Result<Dictionary<string, string>>> GetFieldsAsync(CancellationToken cancellationToken = default);

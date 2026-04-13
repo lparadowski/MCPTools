@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Trello.Application\Trello.Application.csproj" />
     <ProjectReference Include="..\Trello.Infrastructure\Trello.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Api\Shared.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

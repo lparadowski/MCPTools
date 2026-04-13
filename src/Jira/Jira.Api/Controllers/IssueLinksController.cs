@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using Jira.Api.Extensions;
+using Shared.Api.Extensions;
 using Jira.Api.Requests;
 using Jira.Application.Interfaces;
 using Microsoft.AspNetCore.Http.HttpResults;

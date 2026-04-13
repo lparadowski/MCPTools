@@ -1,6 +1,6 @@
 using FluentResults;
 using Miro.Application.Interfaces;
-using Miro.Application.ResultErrors;
+using Shared.Application.ResultErrors;
 using Miro.Domain.Entities;
 
 namespace Miro.Application.Services;

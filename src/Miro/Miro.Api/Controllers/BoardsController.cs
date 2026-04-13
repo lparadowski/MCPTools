@@ -2,7 +2,7 @@ using Asp.Versioning;
 using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Miro.Api.Extensions;
+using Shared.Api.Extensions;
 using Miro.Api.Requests;
 using Miro.Api.Responses;
 using Miro.Application.Services;

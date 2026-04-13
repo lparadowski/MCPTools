@@ -35,12 +35,13 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - InfrastructureSettings__MiroAccessToken=${MIRO_ACCESS_TOKEN}
+      - InfrastructureSettings__DisableSslValidation=${DISABLE_SSL_VALIDATION:-false}
     restart: unless-stopped
 
   jira-api:
     build:
-      context: ./src/Jira
-      dockerfile: Jira.Api/Dockerfile
+      context: ./src
+      dockerfile: Jira/Jira.Api/Dockerfile
     ports:
       - "5004:8080"
     environment:
@@ -48,6 +49,7 @@ services:
       - InfrastructureSettings__JiraBaseUrl=${JIRA_BASE_URL}
       - InfrastructureSettings__JiraEmail=${JIRA_EMAIL}
       - InfrastructureSettings__JiraApiToken=${JIRA_API_TOKEN}
+      - ChunkingSettings__DefaultMaxLength=${JIRA_DEFAULT_MAX_CHUNK_LENGTH:-20000}
     restart: unless-stopped
 
   azuredevops-api:

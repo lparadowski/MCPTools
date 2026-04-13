@@ -1,6 +1,6 @@
 using FluentResults;
 
-namespace Confluence.Application.ResultErrors;
+namespace Shared.Application.ResultErrors;
 
 public class ValidationError(string propertyName, IEnumerable<string> errorMessages) : Error()
 {
