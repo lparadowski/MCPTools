@@ -15,7 +15,7 @@ public static class AzureDevOpsTools
     {
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.GetAsync("/api/v1/projects");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "get_azure_project")]
@@ -26,7 +26,7 @@ public static class AzureDevOpsTools
     {
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.GetAsync($"/api/v1/projects/{projectNameOrId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Work Items
@@ -39,7 +39,7 @@ public static class AzureDevOpsTools
     {
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.GetAsync($"/api/v1/workitems/{id}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "create_azure_work_item")]
@@ -60,7 +60,7 @@ public static class AzureDevOpsTools
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.PostAsJsonAsync("/api/v1/workitems",
             new { project, workItemType, title, description, parentId, assignedTo, areaPath, iterationPath, priority, tags });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "update_azure_work_item")]
@@ -80,7 +80,7 @@ public static class AzureDevOpsTools
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.PutAsJsonAsync($"/api/v1/workitems/{id}",
             new { title, description, state, assignedTo, areaPath, iterationPath, priority, tags });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "delete_azure_work_item")]
@@ -91,7 +91,7 @@ public static class AzureDevOpsTools
     {
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.DeleteAsync($"/api/v1/workitems/{id}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "search_azure_work_items")]
@@ -102,7 +102,7 @@ public static class AzureDevOpsTools
     {
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.PostAsJsonAsync("/api/v1/workitems/search", new { wiql });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Comments
@@ -116,7 +116,7 @@ public static class AzureDevOpsTools
     {
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.GetAsync($"/api/v1/workitems/{id}/comments?project={Uri.EscapeDataString(project)}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "add_azure_work_item_comment")]
@@ -131,7 +131,7 @@ public static class AzureDevOpsTools
         var response = await http.PostAsJsonAsync(
             $"/api/v1/workitems/{id}/comments?project={Uri.EscapeDataString(project)}",
             new { text });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Teams
@@ -144,7 +144,7 @@ public static class AzureDevOpsTools
     {
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.GetAsync($"/api/v1/projects/{Uri.EscapeDataString(project)}/teams");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Boards
@@ -158,7 +158,7 @@ public static class AzureDevOpsTools
     {
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.GetAsync($"/api/v1/projects/{Uri.EscapeDataString(project)}/teams/{Uri.EscapeDataString(team)}/boards");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Sprints
@@ -172,6 +172,6 @@ public static class AzureDevOpsTools
     {
         var http = httpFactory.CreateClient("AzureDevOpsApi");
         var response = await http.GetAsync($"/api/v1/projects/{Uri.EscapeDataString(project)}/teams/{Uri.EscapeDataString(team)}/sprints");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 }

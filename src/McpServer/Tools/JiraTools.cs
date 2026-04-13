@@ -15,7 +15,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync("/api/v1/projects");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "get_jira_project")]
@@ -26,7 +26,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync($"/api/v1/projects/{projectKeyOrId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Issues
@@ -46,7 +46,7 @@ public static class JiraTools
         var http = httpFactory.CreateClient("JiraApi");
         var labelList = labels?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
         var response = await http.PostAsJsonAsync("/api/v1/issues", new { projectKey, issueType, summary, description, customFields, parentKey, labels = labelList });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "get_jira_issue")]
@@ -57,7 +57,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync($"/api/v1/issues/{issueKeyOrId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "update_jira_issue")]
@@ -71,7 +71,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PutAsJsonAsync($"/api/v1/issues/{issueKeyOrId}", new { summary, description, customFields });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "delete_jira_issue")]
@@ -82,7 +82,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.DeleteAsync($"/api/v1/issues/{issueKeyOrId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "search_jira_issues")]
@@ -94,7 +94,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PostAsJsonAsync("/api/v1/issues/search", new { jql, maxResults });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Transitions
@@ -107,7 +107,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync($"/api/v1/issues/{issueKeyOrId}/transitions");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "transition_jira_issue")]
@@ -119,7 +119,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PostAsJsonAsync($"/api/v1/issues/{issueKeyOrId}/transitions", new { transitionId });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Comments
@@ -132,7 +132,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync($"/api/v1/issues/{issueKeyOrId}/comments");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "add_jira_comment")]
@@ -144,7 +144,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PostAsJsonAsync($"/api/v1/issues/{issueKeyOrId}/comments", new { body });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Labels
@@ -158,7 +158,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PostAsJsonAsync($"/api/v1/issues/{issueKeyOrId}/labels", new { label });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "remove_jira_label")]
@@ -170,7 +170,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.DeleteAsync($"/api/v1/issues/{issueKeyOrId}/labels/{label}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Assignment
@@ -184,7 +184,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PutAsJsonAsync($"/api/v1/issues/{issueKeyOrId}/assignee", new { accountId });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Issue Links
@@ -199,7 +199,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PostAsJsonAsync("/api/v1/issuelinks", new { inwardIssueKey, outwardIssueKey, linkTypeName });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Boards
@@ -210,7 +210,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync("/api/v1/boards");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "get_jira_board")]
@@ -221,7 +221,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync($"/api/v1/boards/{boardId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Sprints
@@ -234,7 +234,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync($"/api/v1/sprints/by-board/{boardId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "move_issues_to_sprint")]
@@ -247,7 +247,7 @@ public static class JiraTools
         var http = httpFactory.CreateClient("JiraApi");
         var keys = issueKeys.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
         var response = await http.PostAsJsonAsync($"/api/v1/sprints/{sprintId}/issues", new { issueKeys = keys });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Worklogs
@@ -260,7 +260,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync($"/api/v1/issues/{issueKeyOrId}/worklogs");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "search_jira_user_worklogs")]
@@ -273,7 +273,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync($"/api/v1/worklogs?username={Uri.EscapeDataString(username)}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "log_jira_work")]
@@ -287,7 +287,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PostAsJsonAsync($"/api/v1/issues/{issueKeyOrId}/worklogs", new { timeSpent, comment, started });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "update_jira_worklog")]
@@ -302,7 +302,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PutAsJsonAsync($"/api/v1/worklogs/{issueKeyOrId}/{worklogId}", new { timeSpent, comment, started });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "delete_jira_worklog")]
@@ -314,7 +314,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.DeleteAsync($"/api/v1/worklogs/{issueKeyOrId}/{worklogId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Activity
@@ -329,7 +329,7 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync($"/api/v1/activity?accountId={Uri.EscapeDataString(accountId)}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     // Fields
@@ -340,6 +340,6 @@ public static class JiraTools
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.GetAsync("/api/v1/fields");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 }

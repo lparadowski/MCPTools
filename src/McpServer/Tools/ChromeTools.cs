@@ -2,7 +2,7 @@ using System.ComponentModel;
 using Chrome.Core;
 using ModelContextProtocol.Server;
 
-namespace McpServer.Tools.Chrome;
+namespace McpServer.Tools;
 
 [McpServerToolType]
 public static class ChromeTools
@@ -103,5 +103,4 @@ public static class ChromeTools
             return "Could not connect to Chrome. Make sure Chrome is running with --remote-debugging-port=9222";
         }
     }
-
 }

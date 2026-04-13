@@ -13,7 +13,7 @@ public static class MiroTools
     {
         var http = httpFactory.CreateClient("MiroApi");
         var response = await http.GetAsync("/api/v1/boards");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "get_miro_board")]
@@ -24,7 +24,7 @@ public static class MiroTools
     {
         var http = httpFactory.CreateClient("MiroApi");
         var response = await http.GetAsync($"/api/v1/boards/{boardId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "list_miro_sticky_notes")]
@@ -35,7 +35,7 @@ public static class MiroTools
     {
         var http = httpFactory.CreateClient("MiroApi");
         var response = await http.GetAsync($"/api/v1/boards/{boardId}/sticky-notes");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "create_miro_sticky_note")]
@@ -52,7 +52,7 @@ public static class MiroTools
         var http = httpFactory.CreateClient("MiroApi");
         var payload = new { boardId, content, shape, fillColor, positionX, positionY };
         var response = await http.PostAsJsonAsync($"/api/v1/boards/{boardId}/sticky-notes", payload);
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "update_miro_sticky_note")]
@@ -73,7 +73,7 @@ public static class MiroTools
             Content = JsonContent.Create(payload)
         };
         var response = await http.SendAsync(request);
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "delete_miro_sticky_note")]
@@ -85,6 +85,6 @@ public static class MiroTools
     {
         var http = httpFactory.CreateClient("MiroApi");
         var response = await http.DeleteAsync($"/api/v1/boards/{boardId}/sticky-notes/{itemId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 }

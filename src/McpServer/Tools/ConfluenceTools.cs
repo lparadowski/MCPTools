@@ -13,7 +13,7 @@ public static class ConfluenceTools
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
         var response = await http.GetAsync("/api/v1/spaces");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "get_confluence_space")]
@@ -24,7 +24,7 @@ public static class ConfluenceTools
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
         var response = await http.GetAsync($"/api/v1/spaces/{spaceId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "create_confluence_space")]
@@ -37,7 +37,7 @@ public static class ConfluenceTools
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
         var response = await http.PostAsJsonAsync("/api/v1/spaces", new { name, key, description });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "delete_confluence_space")]
@@ -48,7 +48,7 @@ public static class ConfluenceTools
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
         var response = await http.DeleteAsync($"/api/v1/spaces/{spaceId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "list_confluence_pages")]
@@ -59,7 +59,7 @@ public static class ConfluenceTools
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
         var response = await http.GetAsync($"/api/v1/pages/by-space/{spaceId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "get_confluence_page")]
@@ -72,7 +72,7 @@ public static class ConfluenceTools
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
         var response = await http.GetAsync($"/api/v1/pages/{pageId}?offset={offset}&maxLength={maxLength}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "create_confluence_page")]
@@ -86,7 +86,7 @@ public static class ConfluenceTools
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
         var response = await http.PostAsJsonAsync("/api/v1/pages", new { spaceId, title, body, parentId });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "update_confluence_page")]
@@ -100,7 +100,7 @@ public static class ConfluenceTools
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
         var response = await http.PutAsJsonAsync($"/api/v1/pages/{pageId}", new { title, body, version });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "search_confluence")]
@@ -112,7 +112,7 @@ public static class ConfluenceTools
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
         var response = await http.PostAsJsonAsync("/api/v1/search", new { cql, maxResults });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "delete_confluence_page")]
@@ -123,6 +123,6 @@ public static class ConfluenceTools
     {
         var http = httpFactory.CreateClient("ConfluenceApi");
         var response = await http.DeleteAsync($"/api/v1/pages/{pageId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 }
