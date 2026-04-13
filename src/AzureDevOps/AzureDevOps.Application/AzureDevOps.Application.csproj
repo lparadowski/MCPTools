@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AzureDevOps.Domain\AzureDevOps.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Application\Shared.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

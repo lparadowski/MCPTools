@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using Confluence.Api.Extensions;
+using Shared.Api.Extensions;
 using Confluence.Api.Requests;
 using Confluence.Api.Responses;
 using Confluence.Application.Services;

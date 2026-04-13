@@ -1,5 +1,5 @@
 using FluentResults;
 
-namespace Miro.Application.ResultErrors;
+namespace Shared.Application.ResultErrors;
 
 public class EntityDoesNotExistError() : Error() { }
