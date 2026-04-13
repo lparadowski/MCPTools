@@ -21,7 +21,8 @@ builder.Host.UseSerilog((context, loggerConfig) =>
 {
     loggerConfig
         .ReadFrom.Configuration(context.Configuration)
-        .Enrich.WithProperty("Application", "Confluence.Api");
+        .Enrich.WithProperty("Application", "Confluence.Api")
+        .WriteTo.Seq("http://localhost:5341");
 });
 
 // Configure Mapster
@@ -79,7 +80,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
