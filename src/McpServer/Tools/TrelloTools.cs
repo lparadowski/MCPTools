@@ -13,7 +13,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.GetAsync("/api/v1/boards");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "create_trello_board")]
@@ -25,7 +25,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.PostAsJsonAsync("/api/v1/boards", new { name, description });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "get_trello_board")]
@@ -36,7 +36,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.GetAsync($"/api/v1/boards/{boardId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "archive_trello_board")]
@@ -47,7 +47,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.PutAsync($"/api/v1/boards/{boardId}/archive", null);
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "delete_trello_board")]
@@ -58,7 +58,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.DeleteAsync($"/api/v1/boards/{boardId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "list_trello_cards")]
@@ -69,7 +69,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.GetAsync($"/api/v1/boards/{boardId}/cards");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "get_trello_card")]
@@ -80,7 +80,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.GetAsync($"/api/v1/cards/{cardId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "get_trello_card_comments")]
@@ -91,7 +91,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.GetAsync($"/api/v1/cards/{cardId}/comments");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "post_trello_comment")]
@@ -103,7 +103,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.PostAsJsonAsync($"/api/v1/cards/{cardId}/comments", new { text });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "create_trello_card")]
@@ -116,7 +116,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.PostAsJsonAsync("/api/v1/cards", new { listId, name, description });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "move_trello_card")]
@@ -128,7 +128,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.PutAsJsonAsync($"/api/v1/cards/{cardId}/list", new { listId });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "update_trello_card")]
@@ -141,7 +141,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.PutAsJsonAsync($"/api/v1/cards/{cardId}", new { name, description });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "archive_trello_card")]
@@ -152,7 +152,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.PutAsync($"/api/v1/cards/{cardId}/archive", null);
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "delete_trello_card")]
@@ -163,7 +163,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.DeleteAsync($"/api/v1/cards/{cardId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "list_trello_board_labels")]
@@ -174,7 +174,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.GetAsync($"/api/v1/boards/{boardId}/labels");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "create_trello_board_label")]
@@ -187,7 +187,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.PostAsJsonAsync($"/api/v1/boards/{boardId}/labels", new { name, color });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "add_label_to_trello_card")]
@@ -199,7 +199,7 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.PostAsJsonAsync($"/api/v1/cards/{cardId}/labels", new { labelId });
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 
     [McpServerTool(Name = "remove_label_from_trello_card")]
@@ -211,6 +211,6 @@ public static class TrelloTools
     {
         var http = httpFactory.CreateClient("TrelloApi");
         var response = await http.DeleteAsync($"/api/v1/cards/{cardId}/labels/{labelId}");
-        return await response.Content.ReadAsStringAsync();
+        return await response.ReadContentOrError();
     }
 }

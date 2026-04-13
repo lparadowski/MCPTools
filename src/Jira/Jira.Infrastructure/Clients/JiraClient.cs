@@ -34,7 +34,7 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
     private static readonly Regex MarkdownLinkRegex = new(@"\[(?<text>[^\]]+)\]\((?<url>https?://[^\s)]+)\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex BareUrlRegex = new(@"https?://[^\s]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    // Projects
+    #region Projects
 
     public async Task<List<Project>> GetProjectsAsync(CancellationToken cancellationToken = default)
     {
@@ -60,7 +60,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return dto?.Adapt<Project>();
     }
 
-    // Issues
+    #endregion
+
+    #region Issues
 
     public async Task<Issue?> CreateIssueAsync(
         string projectKey,
@@ -181,7 +183,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return result?.Issues?.Select(i => MapIssue(i, result.Names)).ToList() ?? [];
     }
 
-    // Transitions
+    #endregion
+
+    #region Transitions
 
     public async Task<List<Transition>> GetTransitionsAsync(string issueKeyOrId, CancellationToken cancellationToken = default)
     {
@@ -201,7 +205,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return response.IsSuccessStatusCode;
     }
 
-    // Comments
+    #endregion
+
+    #region Comments
 
     public async Task<List<Comment>> GetCommentsAsync(string issueKeyOrId, CancellationToken cancellationToken = default)
     {
@@ -247,7 +253,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return dto?.Adapt<Comment>();
     }
 
-    // Labels
+    #endregion
+
+    #region Labels
 
     public async Task<bool> AddLabelAsync(string issueKeyOrId, string label, CancellationToken cancellationToken = default)
     {
@@ -277,7 +285,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return response.IsSuccessStatusCode;
     }
 
-    // Assignment
+    #endregion
+
+    #region Assignment
 
     public async Task<bool> AssignIssueAsync(string issueKeyOrId, string? accountId, CancellationToken cancellationToken = default)
     {
@@ -287,7 +297,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return response.IsSuccessStatusCode;
     }
 
-    // Issue Links
+    #endregion
+
+    #region Issue Links
 
     public async Task<bool> LinkIssuesAsync(string inwardIssueKey, string outwardIssueKey, string linkTypeName, CancellationToken cancellationToken = default)
     {
@@ -302,7 +314,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return response.IsSuccessStatusCode;
     }
 
-    // Boards (Agile API)
+    #endregion
+
+    #region Boards
 
     public async Task<List<Board>> GetBoardsAsync(CancellationToken cancellationToken = default)
     {
@@ -347,7 +361,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return dto?.Adapt<Board>();
     }
 
-    // Sprints (Agile API)
+    #endregion
+
+    #region Sprints
 
     public async Task<List<Sprint>> GetSprintsAsync(int boardId, CancellationToken cancellationToken = default)
     {
@@ -386,7 +402,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return response.IsSuccessStatusCode;
     }
 
-    // Worklogs
+    #endregion
+
+    #region Worklogs
 
     public async Task<List<Worklog>> GetWorklogsAsync(string issueKeyOrId, CancellationToken cancellationToken = default)
     {
@@ -491,7 +509,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         return response.IsSuccessStatusCode;
     }
 
-    // Activity
+    #endregion
+
+    #region Activity
 
     public async Task<List<UserActivity>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
     {
@@ -596,7 +616,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
             .ToList();
     }
 
-    // Fields
+    #endregion
+
+    #region Fields
 
     public async Task<Dictionary<string, string>> GetFieldsAsync(CancellationToken cancellationToken = default)
     {
@@ -622,6 +644,10 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 
         return result;
     }
+
+    #endregion
+
+    #region Helpers
 
     private static void AddCustomFields(Dictionary<string, object?> fields, Dictionary<string, string?>? customFields)
     {
@@ -1081,4 +1107,6 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 
         return parts.Count > 0 ? prefix + string.Join(" ", parts) : null;
     }
+
+    #endregion
 }
