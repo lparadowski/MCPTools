@@ -61,7 +61,7 @@ Chrome automation runs in-process via Chrome DevTools Protocol (WebSocket).
 ### 1. Clone and configure
 
 ```bash
-git clone https://github.com/your-username/McpProjectTools.git
+git clone https://github.com/lparadowski/McpProjectTools.git
 cd McpProjectTools
 cp .env.example .env
 ```
