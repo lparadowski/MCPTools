@@ -63,7 +63,12 @@ Chrome automation runs in-process via Chrome DevTools Protocol (WebSocket).
 ```bash
 git clone https://github.com/lparadowski/McpProjectTools.git
 cd McpProjectTools
+
+# macOS/Linux
 cp .env.example .env
+
+# Windows (PowerShell)
+Copy-Item .env.example .env
 ```
 
 Edit `.env` with your API credentials (see [Configuration](#configuration)).
@@ -296,6 +301,15 @@ src/
 - **Serilog** — Structured logging
 - **Seq** — Centralized log viewer
 - **Manatee.Trello** — Trello SDK
+
+## Limitations
+
+- **No authentication between MCP server and backend services** — all communication is over localhost HTTP. Not designed for multi-user or remote deployment.
+- **Chrome automation requires a local Chrome instance** — must be launched manually with `--remote-debugging-port=9222`.
+- **Miro integration is read/write for sticky notes only** — other item types (frames, cards, shapes, connectors) are not yet supported.
+- **Trello checklists are not supported** — cards, lists, labels, and comments are covered, but checklist management is not yet implemented.
+- **No webhook or real-time event support** — all interactions are request/response. There is no push notification or polling for changes.
+- **No test suite** — backend services and MCP tools do not currently have automated tests.
 
 ## Contributing
 
