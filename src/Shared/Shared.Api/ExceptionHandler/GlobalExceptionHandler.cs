@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Trello.Api.Resources;
+using Microsoft.Extensions.Logging;
+using Shared.Api.Resources;
 
-namespace Trello.Api.ExceptionHandler;
+namespace Shared.Api.ExceptionHandler;
 
 public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {

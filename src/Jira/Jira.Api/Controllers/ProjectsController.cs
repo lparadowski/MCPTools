@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using Jira.Api.Extensions;
+using Shared.Api.Extensions;
 using Jira.Api.Responses;
 using Jira.Application.Interfaces;
 using Jira.Domain.Entities;

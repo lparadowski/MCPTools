@@ -3,6 +3,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Jira.Application\Jira.Application.csproj" />
     <ProjectReference Include="..\Jira.Infrastructure\Jira.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Application\Shared.Application.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Api\Shared.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

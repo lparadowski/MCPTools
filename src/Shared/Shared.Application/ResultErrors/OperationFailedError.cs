@@ -1,5 +1,5 @@
 using FluentResults;
 
-namespace Jira.Application.ResultErrors;
+namespace Shared.Application.ResultErrors;
 
 public class OperationFailedError() : Error() { }

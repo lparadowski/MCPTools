@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AzureDevOps.Application\AzureDevOps.Application.csproj" />
     <ProjectReference Include="..\AzureDevOps.Infrastructure\AzureDevOps.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Api\Shared.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

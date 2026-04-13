@@ -1,5 +1,5 @@
 using Confluence.Application.Interfaces;
-using Confluence.Application.ResultErrors;
+using Shared.Application.ResultErrors;
 using Confluence.Domain.Entities;
 using FluentResults;
 using Shared.Application.Chunking;
