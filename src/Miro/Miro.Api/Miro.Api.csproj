@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Miro.Application\Miro.Application.csproj" />
     <ProjectReference Include="..\Miro.Infrastructure\Miro.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Api\Shared.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

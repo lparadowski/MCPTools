@@ -21,6 +21,16 @@ public static class ServiceCollectionExtensions
             client.BaseAddress = new Uri("https://api.miro.com");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", settings.MiroAccessToken);
+        }).ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            var handler = new HttpClientHandler();
+
+            if (settings.DisableSslValidation)
+            {
+                handler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+            }
+
+            return handler;
         });
 
         var mappingConfig = new MappingConfig();

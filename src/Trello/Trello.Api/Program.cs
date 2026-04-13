@@ -2,7 +2,7 @@ using Asp.Versioning;
 using Mapster;
 using Serilog;
 using System.Text.Json.Serialization;
-using Trello.Api.ExceptionHandler;
+using Shared.Api.ExceptionHandler;
 using Trello.Api.Mappings;
 using Trello.Application;
 using Trello.Infrastructure;

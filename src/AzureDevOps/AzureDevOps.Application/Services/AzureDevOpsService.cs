@@ -1,5 +1,5 @@
 using AzureDevOps.Application.Interfaces;
-using AzureDevOps.Application.ResultErrors;
+using Shared.Application.ResultErrors;
 using AzureDevOps.Domain.Entities;
 using FluentResults;
 

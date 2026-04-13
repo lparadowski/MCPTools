@@ -1,4 +1,4 @@
-namespace Confluence.Api.Resources;
+namespace Shared.Api.Resources;
 
 public static class ResponseMessages
 {

@@ -45,7 +45,7 @@ public class MappingConfig
         config.NewConfig<JiraCommentDto, Comment>()
             .Map(dest => dest.Id, src => src.Id ?? string.Empty)
             .Map(dest => dest.AuthorDisplayName, src => src.Author != null ? src.Author.DisplayName : null)
-            .Map(dest => dest.Body, src => JiraDocumentParser.ExtractPlainText(src.Body))
+            .Map(dest => dest.Body, src => src.Body.HasValue ? JiraDocumentParser.ExtractPlainText(src.Body.Value) : null)
             .Map(dest => dest.Created, src => src.Created != null ? DateTime.Parse(src.Created) : (DateTime?)null)
             .Map(dest => dest.Updated, src => src.Updated != null ? DateTime.Parse(src.Updated) : (DateTime?)null);
 

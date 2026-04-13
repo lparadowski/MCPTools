@@ -1,11 +1,12 @@
 using FluentResults;
 using Jira.Application.Interfaces;
-using Jira.Application.ResultErrors;
+using Shared.Application.ResultErrors;
 using Jira.Domain.Entities;
+using Shared.Application.Chunking;
 
 namespace Jira.Application.Services;
 
-public class JiraService(IJiraClient jiraClient) : IJiraService
+public class JiraService(IJiraClient jiraClient, ChunkingSettings chunkingSettings) : IJiraService
 {
     // Projects
 
@@ -49,16 +50,26 @@ public class JiraService(IJiraClient jiraClient) : IJiraService
         return Result.Ok(issue);
     }
 
-    public async Task<Result<Issue>> GetIssueAsync(string issueKeyOrId, CancellationToken cancellationToken = default)
+    public async Task<Result<ChunkedResult<Issue>>> GetIssueAsync(string issueKeyOrId, int offset = 0, int maxLength = 0, CancellationToken cancellationToken = default)
     {
         var issue = await jiraClient.GetIssueAsync(issueKeyOrId, cancellationToken);
 
         if (issue is null)
         {
-            return Result.Fail<Issue>(new EntityDoesNotExistError());
+            return Result.Fail<ChunkedResult<Issue>>(new EntityDoesNotExistError());
         }
 
-        return Result.Ok(issue);
+        var effectiveMaxLength = maxLength > 0 ? maxLength : chunkingSettings.DefaultMaxLength;
+        var result = new ChunkedResult<Issue> { Value = issue };
+
+        if (!string.IsNullOrEmpty(issue.Description) && issue.Description.Length > effectiveMaxLength)
+        {
+            var chunked = ContentChunker.Chunk(issue.Description, offset, effectiveMaxLength);
+            issue.Description = chunked.Content;
+            result.ChunkMetadata = chunked;
+        }
+
+        return Result.Ok(result);
     }
 
     public async Task<Result<Issue>> UpdateIssueAsync(
@@ -90,10 +101,11 @@ public class JiraService(IJiraClient jiraClient) : IJiraService
         return Result.Ok();
     }
 
-    public async Task<Result<List<Issue>>> SearchIssuesAsync(string jql, int maxResults = 50, CancellationToken cancellationToken = default)
+    public async Task<Result<ChunkedResult<List<Issue>>>> SearchIssuesAsync(string jql, int offset = 0, int maxLength = 0, int maxResults = 50, CancellationToken cancellationToken = default)
     {
         var issues = await jiraClient.SearchIssuesAsync(jql, maxResults, cancellationToken);
-        return Result.Ok(issues);
+        var effectiveMaxLength = maxLength > 0 ? maxLength : chunkingSettings.DefaultMaxLength;
+        return Result.Ok(ContentChunker.ChunkList(issues, offset, effectiveMaxLength));
     }
 
     // Transitions
@@ -282,10 +294,11 @@ public class JiraService(IJiraClient jiraClient) : IJiraService
 
     // Activity
 
-    public async Task<Result<List<UserActivity>>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    public async Task<Result<ChunkedResult<List<UserActivity>>>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, int offset = 0, int maxLength = 0, CancellationToken cancellationToken = default)
     {
         var activity = await jiraClient.GetUserActivityAsync(accountId, startDate, endDate, cancellationToken);
-        return Result.Ok(activity);
+        var effectiveMaxLength = maxLength > 0 ? maxLength : chunkingSettings.DefaultMaxLength;
+        return Result.Ok(ContentChunker.ChunkList(activity, offset, effectiveMaxLength));
     }
 
     // Fields

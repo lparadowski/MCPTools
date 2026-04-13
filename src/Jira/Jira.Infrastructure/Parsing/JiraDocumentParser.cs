@@ -6,6 +6,11 @@ namespace Jira.Infrastructure.Parsing;
 
 internal static class JiraDocumentParser
 {
+    private static readonly JsonSerializerOptions CamelCaseOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     public static string? ExtractPlainText(JiraDocumentDto? doc)
     {
         if (doc is null)
@@ -13,7 +18,7 @@ internal static class JiraDocumentParser
             return null;
         }
 
-        var json = JsonSerializer.SerializeToElement(doc);
+        var json = JsonSerializer.SerializeToElement(doc, CamelCaseOptions);
         return ExtractPlainText(json);
     }
 

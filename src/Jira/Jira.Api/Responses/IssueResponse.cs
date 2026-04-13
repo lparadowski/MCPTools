@@ -18,4 +18,7 @@ public class IssueResponse
     public DateTime? Created { get; set; }
     public DateTime? Updated { get; set; }
     public Dictionary<string, object?> Fields { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public int? TotalDescriptionLength { get; set; }
+    public bool? HasMore { get; set; }
+    public int? NextOffset { get; set; }
 }
