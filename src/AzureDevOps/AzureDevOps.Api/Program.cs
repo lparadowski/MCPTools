@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using AzureDevOps.Api.ExceptionHandler;
+using Shared.Api.ExceptionHandler;
 using AzureDevOps.Api.Mappings;
 using AzureDevOps.Application;
 using AzureDevOps.Infrastructure;

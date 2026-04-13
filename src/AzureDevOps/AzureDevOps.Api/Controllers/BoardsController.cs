@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using AzureDevOps.Api.Extensions;
+using Shared.Api.Extensions;
 using AzureDevOps.Api.Responses;
 using AzureDevOps.Application.Interfaces;
 using AzureDevOps.Domain.Entities;

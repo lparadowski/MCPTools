@@ -1,10 +1,11 @@
 using FluentResults;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Trello.Api.Resources;
-using Trello.Application.ResultErrors;
+using Shared.Api.Resources;
+using Shared.Application.ResultErrors;
 
-namespace Trello.Api.Extensions;
+namespace Shared.Api.Extensions;
 
 public static class ResultExtensions
 {
@@ -15,21 +16,18 @@ public static class ResultExtensions
         {
             return TypedResults.Ok(mapper(serviceResult.Value));
         }
-        else
+
+        if (serviceResult.HasError<ValidationError>(out var validationErrors))
         {
-            if (serviceResult.HasError<ValidationError>(out var validationErrors))
-            {
-                return CreateBadRequestResult(validationErrors);
-            }
-            else if (serviceResult.HasError<EntityDoesNotExistError>())
-            {
-                return TypedResults.NotFound();
-            }
-            else
-            {
-                return TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
-            }
+            return CreateBadRequestResult(validationErrors);
         }
+
+        if (serviceResult.HasError<EntityDoesNotExistError>())
+        {
+            return TypedResults.NotFound();
+        }
+
+        return TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
     }
 
     public static Results<Ok<TResponseModel>, BadRequest, ProblemHttpResult> ToGetResult<TResponseModel>(
@@ -39,12 +37,10 @@ public static class ResultExtensions
         {
             return TypedResults.Ok(serviceResult.Value);
         }
-        else
-        {
-            return serviceResult.HasError<ValidationError>(out var validationErrors)
-                ? CreateBadRequestResult(validationErrors)
-                : TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
-        }
+
+        return serviceResult.HasError<ValidationError>(out var validationErrors)
+            ? CreateBadRequestResult(validationErrors)
+            : TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
     }
 
     public static Results<Ok<List<TResponseModel>>, BadRequest, ProblemHttpResult> ToGetResult<TDomainModel, TResponseModel>(
@@ -54,12 +50,10 @@ public static class ResultExtensions
         {
             return TypedResults.Ok(serviceResult.Value.Select(mapper).ToList());
         }
-        else
-        {
-            return serviceResult.HasError<ValidationError>(out var validationErrors)
-                ? CreateBadRequestResult(validationErrors)
-                : TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
-        }
+
+        return serviceResult.HasError<ValidationError>(out var validationErrors)
+            ? CreateBadRequestResult(validationErrors)
+            : TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
     }
 
     public static Results<Ok, BadRequest, NotFound, ProblemHttpResult> ToOkPostResult(this Result serviceResult)
@@ -68,21 +62,18 @@ public static class ResultExtensions
         {
             return TypedResults.Ok();
         }
-        else
+
+        if (serviceResult.HasError<ValidationError>(out var validationErrors))
         {
-            if (serviceResult.HasError<ValidationError>(out var validationErrors))
-            {
-                return CreateBadRequestResult(validationErrors);
-            }
-            else if (serviceResult.HasError<EntityDoesNotExistError>())
-            {
-                return TypedResults.NotFound();
-            }
-            else
-            {
-                return TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
-            }
+            return CreateBadRequestResult(validationErrors);
         }
+
+        if (serviceResult.HasError<EntityDoesNotExistError>())
+        {
+            return TypedResults.NotFound();
+        }
+
+        return TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
     }
 
     public static Results<Ok<TResponseModel>, BadRequest, NotFound, ProblemHttpResult> ToPutResult<TDomainModel, TResponseModel>(
@@ -92,21 +83,18 @@ public static class ResultExtensions
         {
             return TypedResults.Ok(mapper(serviceResult.Value));
         }
-        else
+
+        if (serviceResult.HasError<ValidationError>(out var validationErrors))
         {
-            if (serviceResult.HasError<ValidationError>(out var validationErrors))
-            {
-                return CreateBadRequestResult(validationErrors);
-            }
-            else if (serviceResult.HasError<EntityDoesNotExistError>())
-            {
-                return TypedResults.NotFound();
-            }
-            else
-            {
-                return TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
-            }
+            return CreateBadRequestResult(validationErrors);
         }
+
+        if (serviceResult.HasError<EntityDoesNotExistError>())
+        {
+            return TypedResults.NotFound();
+        }
+
+        return TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError);
     }
 
     private static ProblemHttpResult CreateBadRequestResult(IEnumerable<ValidationError> validationErrors)

@@ -50,13 +50,15 @@ public static class JiraTools
     }
 
     [McpServerTool(Name = "get_jira_issue")]
-    [Description("Get a Jira issue by key or ID, including status, assignee, labels, and parent.")]
+    [Description("Get a Jira issue by key or ID, including status, assignee, labels, and parent. Large descriptions are returned in chunks — use offset/maxLength to paginate. If hasMore is true, call again with the nextOffset value.")]
     public static async Task<string> GetIssue(
         IHttpClientFactory httpFactory,
-        [Description("The issue key (e.g. 'PROJ-123') or numeric ID")] string issueKeyOrId)
+        [Description("The issue key (e.g. 'PROJ-123') or numeric ID")] string issueKeyOrId,
+        [Description("Character offset into the description content. Default: 0")] int offset = 0,
+        [Description("Max characters to return in the description. 0 = use server-configured default")] int maxLength = 0)
     {
         var http = httpFactory.CreateClient("JiraApi");
-        var response = await http.GetAsync($"/api/v1/issues/{issueKeyOrId}");
+        var response = await http.GetAsync($"/api/v1/issues/{issueKeyOrId}?offset={offset}&maxLength={maxLength}");
         return await response.ReadContentOrError();
     }
 
@@ -86,14 +88,16 @@ public static class JiraTools
     }
 
     [McpServerTool(Name = "search_jira_issues")]
-    [Description("Search Jira issues using JQL (Jira Query Language). Example: 'project = PROJ AND status = \"To Do\"'")]
+    [Description("Search Jira issues using JQL (Jira Query Language). Example: 'project = PROJ AND status = \"To Do\"'. Large results are returned in chunks — use offset/maxLength to paginate. If hasMore is true, call again with the nextOffset value.")]
     public static async Task<string> SearchIssues(
         IHttpClientFactory httpFactory,
         [Description("JQL query string")] string jql,
-        [Description("Maximum results to return (default 50)")] int maxResults = 50)
+        [Description("Maximum results to return (default 50)")] int maxResults = 50,
+        [Description("Character offset into the serialized results. Default: 0")] int offset = 0,
+        [Description("Max characters to return. 0 = use server-configured default")] int maxLength = 0)
     {
         var http = httpFactory.CreateClient("JiraApi");
-        var response = await http.PostAsJsonAsync("/api/v1/issues/search", new { jql, maxResults });
+        var response = await http.PostAsJsonAsync($"/api/v1/issues/search?offset={offset}&maxLength={maxLength}", new { jql, maxResults });
         return await response.ReadContentOrError();
     }
 
@@ -283,7 +287,7 @@ public static class JiraTools
         [Description("The issue key (e.g. 'PROJ-123')")] string issueKeyOrId,
         [Description("Time spent (e.g. '2h', '3d', '1h 30m')")] string timeSpent,
         [Description("Optional comment describing the work done")] string? comment = null,
-        [Description("When the work was started (ISO 8601 format, defaults to now)")] DateTime? started = null)
+        [Description("When the work was started (ISO 8601 with colon in offset, e.g. '2025-03-15T09:00:00+08:00'. Defaults to now)")] DateTime? started = null)
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PostAsJsonAsync($"/api/v1/issues/{issueKeyOrId}/worklogs", new { timeSpent, comment, started });
@@ -298,7 +302,7 @@ public static class JiraTools
         [Description("The worklog ID to update")] string worklogId,
         [Description("Time spent (e.g. '2h', '3d', '1h 30m')")] string timeSpent,
         [Description("Optional comment describing the work done")] string? comment = null,
-        [Description("When the work was started (ISO 8601 format)")] DateTime? started = null)
+        [Description("When the work was started (ISO 8601 with colon in offset, e.g. '2025-03-15T09:00:00+08:00')")] DateTime? started = null)
     {
         var http = httpFactory.CreateClient("JiraApi");
         var response = await http.PutAsJsonAsync($"/api/v1/worklogs/{issueKeyOrId}/{worklogId}", new { timeSpent, comment, started });
@@ -320,15 +324,17 @@ public static class JiraTools
     // Activity
 
     [McpServerTool(Name = "get_jira_user_activity")]
-    [Description("Get a user's Jira activity for a date range: tickets assigned, status transitions, field changes, and comments made. Useful for understanding what someone worked on each day.")]
+    [Description("Get a user's Jira activity for a date range: tickets assigned, status transitions, field changes, and comments made. Useful for understanding what someone worked on each day. Large results are returned in chunks — use offset/maxLength to paginate. If hasMore is true, call again with the nextOffset value.")]
     public static async Task<string> GetUserActivity(
         IHttpClientFactory httpFactory,
         [Description("The user's Jira account ID")] string accountId,
         [Description("Start date (ISO 8601 format, e.g. '2025-03-01')")] DateTime startDate,
-        [Description("End date (ISO 8601 format, e.g. '2025-03-31')")] DateTime endDate)
+        [Description("End date (ISO 8601 format, e.g. '2025-03-31')")] DateTime endDate,
+        [Description("Character offset into the serialized results. Default: 0")] int offset = 0,
+        [Description("Max characters to return. 0 = use server-configured default")] int maxLength = 0)
     {
         var http = httpFactory.CreateClient("JiraApi");
-        var response = await http.GetAsync($"/api/v1/activity?accountId={Uri.EscapeDataString(accountId)}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}");
+        var response = await http.GetAsync($"/api/v1/activity?accountId={Uri.EscapeDataString(accountId)}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}&offset={offset}&maxLength={maxLength}");
         return await response.ReadContentOrError();
     }
 

@@ -2,7 +2,7 @@ using Asp.Versioning;
 using Mapster;
 using Serilog;
 using System.Text.Json.Serialization;
-using Miro.Api.ExceptionHandler;
+using Shared.Api.ExceptionHandler;
 using Miro.Api.Mappings;
 using Miro.Application;
 using Miro.Infrastructure;

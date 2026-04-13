@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Confluence.Application\Confluence.Application.csproj" />
     <ProjectReference Include="..\Confluence.Infrastructure\Confluence.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Api\Shared.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>
