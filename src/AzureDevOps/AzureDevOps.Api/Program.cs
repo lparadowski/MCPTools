@@ -20,7 +20,8 @@ builder.Host.UseSerilog((context, loggerConfig) =>
 {
     loggerConfig
         .ReadFrom.Configuration(context.Configuration)
-        .Enrich.WithProperty("Application", "AzureDevOps.Api");
+        .Enrich.WithProperty("Application", "AzureDevOps.Api")
+        .WriteTo.Seq("http://localhost:5341");
 });
 
 // Configure Mapster
@@ -71,7 +72,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });

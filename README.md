@@ -1,6 +1,6 @@
 # MCP Project Tools
 
-An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that gives AI assistants like Claude the ability to interact with project management tools — Jira, Trello, Confluence, Miro, and Chrome browser automation.
+An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that gives AI assistants like Claude the ability to interact with project management tools — Jira, Trello, Confluence, Miro, Azure DevOps, and Chrome browser automation.
 
 Built with .NET 10 and Docker. Each integration runs as an independent microservice behind a unified MCP interface.
 
@@ -8,10 +8,11 @@ Built with .NET 10 and Docker. Each integration runs as an independent microserv
 
 Connect this MCP server to Claude (or any MCP-compatible client) and it can:
 
-- **Jira** — Create, update, search, and transition issues. Manage sprints, boards, labels, comments, and issue links.
+- **Jira** — Create, update, search, and transition issues. Manage sprints, boards, labels, comments, issue links, and worklogs. Track user activity.
 - **Trello** — Manage boards, cards, lists, labels, and comments.
 - **Confluence** — Create and edit pages and spaces. Search using CQL (Confluence Query Language).
 - **Miro** — List boards and manage sticky notes (create, update, delete with color/position support).
+- **Azure DevOps** — Manage projects, work items, boards, sprints, and teams.
 - **Chrome** — List open tabs, navigate to URLs, and capture screenshots via Chrome DevTools Protocol.
 
 ## Architecture
@@ -20,16 +21,20 @@ Connect this MCP server to Claude (or any MCP-compatible client) and it can:
 ┌─────────────────┐      ┌──────────────────────┐
 │   Claude CLI    │◄────►│     MCP Server        │
 │  (MCP Client)   │ stdio│  (tool definitions)   │
-└─────────────────┘      └──────┬───┬───┬───┬────┘
-                                │   │   │   │
-                    HTTP        │   │   │   │
-                 ┌──────────────┘   │   │   └──────────────┐
-                 ▼                  ▼   ▼                  ▼
-          ┌────────────┐  ┌──────────┐ ┌──────────┐  ┌────────────┐
-          │ Trello API │  │ Jira API │ │ Miro API │  │Confluence  │
-          │   :5001    │  │  :5004   │ │  :5002   │  │ API :5003  │
-          └────────────┘  └──────────┘ └──────────┘  └────────────┘
-               Docker containers (clean architecture)
+└─────────────────┘      └──┬───┬───┬───┬───┬────┘
+                            │   │   │   │   │
+                 HTTP       │   │   │   │   │
+              ┌─────────────┘   │   │   │   └─────────────┐
+              ▼                 ▼   ▼   ▼                 ▼
+       ┌────────────┐  ┌──────────┐ ┌──────────┐  ┌─────────────┐
+       │ Trello API │  │ Jira API │ │ Miro API │  │ Confluence  │
+       │   :5001    │  │  :5004   │ │  :5002   │  │  API :5003  │
+       └────────────┘  └──────────┘ └──────────┘  └─────────────┘
+              ┌──────────────┐  ┌──────────┐
+              │ AzureDevOps  │  │   Seq    │
+              │  API :5005   │  │  :5341   │
+              └──────────────┘  └──────────┘
+                   Docker containers
 ```
 
 Each backend service follows **clean architecture** with four layers:
@@ -38,7 +43,11 @@ Each backend service follows **clean architecture** with four layers:
 - **Domain** — Entities and value objects (no dependencies)
 - **Infrastructure** — External API clients, mapping (Mapster)
 
+Shared code (exception handling, result extensions, error types) lives in the **Shared** project.
+
 Chrome automation runs in-process via Chrome DevTools Protocol (WebSocket).
+
+**Seq** provides centralized structured logging across all services at `http://localhost:5341`.
 
 ## Prerequisites
 
@@ -66,12 +75,14 @@ docker compose up -d
 ```
 
 This starts the API containers:
-| Service    | Port |
-|------------|------|
-| Trello API | 5001 |
-| Miro API   | 5002 |
-| Confluence | 5003 |
-| Jira API   | 5004 |
+| Service       | Port |
+|---------------|------|
+| Trello API    | 5001 |
+| Miro API      | 5002 |
+| Confluence    | 5003 |
+| Jira API      | 5004 |
+| Azure DevOps  | 5005 |
+| Seq           | 5341 |
 
 ### 3. Build the MCP server
 
@@ -129,6 +140,10 @@ CONFLUENCE_API_TOKEN=your_api_token
 
 # Miro (https://miro.com/app/settings/user-profile/apps — create an app and get access token)
 MIRO_ACCESS_TOKEN=your_access_token
+
+# Azure DevOps (https://dev.azure.com — generate a Personal Access Token)
+AZURE_DEVOPS_ORGANIZATION=your_organization
+AZURE_DEVOPS_PAT=your_personal_access_token
 ```
 
 ### Corporate Proxy / SSL Issues
@@ -158,7 +173,7 @@ google-chrome --remote-debugging-port=9222
 
 ## Available Tools
 
-### Jira (15 tools)
+### Jira (20+ tools)
 | Tool | Description |
 |------|-------------|
 | `list_jira_projects` | List all projects |
@@ -178,6 +193,12 @@ google-chrome --remote-debugging-port=9222
 | `list_jira_boards` / `get_jira_board` | Board management |
 | `list_jira_sprints` | List sprints for a board |
 | `move_issues_to_sprint` | Move issues to a sprint |
+| `log_jira_work` | Log time spent on an issue |
+| `get_jira_worklogs` | Get worklog entries |
+| `search_jira_user_worklogs` | Search worklogs by user and date range |
+| `update_jira_worklog` / `delete_jira_worklog` | Manage worklogs |
+| `get_jira_user_activity` | Get user activity (transitions, comments, changes) |
+| `list_jira_fields` | List all fields with IDs for custom field lookup |
 
 ### Trello (14 tools)
 | Tool | Description |
@@ -211,6 +232,19 @@ google-chrome --remote-debugging-port=9222
 | `create_miro_sticky_note` | Create with content, color, shape, position |
 | `update_miro_sticky_note` / `delete_miro_sticky_note` | Update or delete |
 
+### Azure DevOps (10+ tools)
+| Tool | Description |
+|------|-------------|
+| `list_azure_projects` / `get_azure_project` | Browse projects |
+| `create_azure_work_item` | Create work items (Epic, Story, Task, Bug) |
+| `get_azure_work_item` / `update_azure_work_item` | Get or update work items |
+| `delete_azure_work_item` | Delete a work item |
+| `search_azure_work_items` | Search using WIQL |
+| `add_azure_work_item_comment` / `get_azure_work_item_comments` | Manage comments |
+| `list_azure_boards` | List boards |
+| `list_azure_sprints` | List sprints |
+| `list_azure_teams` | List teams |
+
 ### Chrome (3 tools)
 | Tool | Description |
 |------|-------------|
@@ -229,18 +263,23 @@ src/
 │       ├── TrelloTools.cs
 │       ├── ConfluenceTools.cs
 │       ├── MiroTools.cs
-│       └── Chrome/
-│           └── ChromeTools.cs
+│       ├── AzureDevOpsTools.cs
+│       └── ChromeTools.cs
 │
 ├── Jira/                       # Clean architecture
 │   ├── Jira.Api/               # Controllers, DTOs, Dockerfile
-│   ├── Jira.Application/       # Services, interfaces, errors
+│   ├── Jira.Application/       # Services, interfaces
 │   ├── Jira.Domain/            # Entities, value objects
 │   └── Jira.Infrastructure/    # Jira REST API client
 │
 ├── Trello/                     # Same layered pattern
 ├── Confluence/                 # Same layered pattern
 ├── Miro/                       # Same layered pattern
+├── AzureDevOps/                # Same layered pattern
+│
+├── Shared/
+│   ├── Shared.Api/             # GlobalExceptionHandler, ResultExtensions
+│   └── Shared.Application/     # Error types, content chunking
 │
 └── Chrome/
     └── Chrome.Core/            # Chrome DevTools Protocol client
@@ -255,6 +294,7 @@ src/
 - **FluentResults** — Railway-oriented error handling
 - **Mapster** — Object mapping
 - **Serilog** — Structured logging
+- **Seq** — Centralized log viewer
 - **Manatee.Trello** — Trello SDK
 
 ## Contributing
