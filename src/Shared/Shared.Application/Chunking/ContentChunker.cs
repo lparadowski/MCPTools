@@ -1,8 +1,23 @@
+using System.Text.Json;
+
 namespace Shared.Application.Chunking;
 
 public static class ContentChunker
 {
     public const int DefaultMaxLength = 20000;
+
+    public static ChunkedResult<List<T>> ChunkList<T>(List<T> items, int offset = 0, int maxLength = DefaultMaxLength)
+    {
+        var serialized = JsonSerializer.Serialize(items);
+        var result = new ChunkedResult<List<T>> { Value = items };
+
+        if (serialized.Length > maxLength)
+        {
+            result.ChunkMetadata = Chunk(serialized, offset, maxLength);
+        }
+
+        return result;
+    }
 
     public static ChunkedContent Chunk(string content, int offset = 0, int maxLength = DefaultMaxLength)
     {

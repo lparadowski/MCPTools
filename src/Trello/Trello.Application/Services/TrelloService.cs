@@ -1,6 +1,6 @@
 using FluentResults;
 using Trello.Application.Interfaces;
-using Trello.Application.ResultErrors;
+using Shared.Application.ResultErrors;
 using Trello.Domain.Entities;
 
 namespace Trello.Application.Services;

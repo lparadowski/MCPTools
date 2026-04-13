@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using Confluence.Api.ExceptionHandler;
+using Shared.Api.ExceptionHandler;
 using Confluence.Api.Mappings;
 using Confluence.Application;
 using Confluence.Infrastructure;

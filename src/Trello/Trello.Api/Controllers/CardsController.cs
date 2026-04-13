@@ -2,7 +2,7 @@ using Asp.Versioning;
 using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Trello.Api.Extensions;
+using Shared.Api.Extensions;
 using Trello.Api.Requests;
 using Trello.Api.Responses;
 using Trello.Application.Services;

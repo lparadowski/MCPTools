@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using Jira.Api.Extensions;
+using Shared.Api.Extensions;
 using Jira.Api.Requests;
 using Jira.Api.Responses;
 using Jira.Application.Interfaces;
@@ -7,6 +7,7 @@ using Jira.Domain.Entities;
 using Mapster;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Application.Chunking;
 
 namespace Jira.Api.Controllers;
 
@@ -33,10 +34,23 @@ public class IssuesController(IJiraService jiraService) : ControllerBase
 
     [HttpGet("{issueKeyOrId}")]
     public async Task<Results<Ok<IssueResponse>, BadRequest, NotFound, ProblemHttpResult>> GetIssueAsync(
-        string issueKeyOrId, CancellationToken cancellationToken)
+        string issueKeyOrId, [FromQuery] int offset = 0, [FromQuery] int maxLength = 0,
+        CancellationToken cancellationToken = default)
     {
-        var result = await jiraService.GetIssueAsync(issueKeyOrId, cancellationToken);
-        return result.ToGetResult<Issue, IssueResponse>(i => i.Adapt<IssueResponse>());
+        var result = await jiraService.GetIssueAsync(issueKeyOrId, offset, maxLength, cancellationToken);
+        return result.ToGetResult<ChunkedResult<Issue>, IssueResponse>(chunkedResult =>
+        {
+            var response = chunkedResult.Value.Adapt<IssueResponse>();
+
+            if (chunkedResult.ChunkMetadata is not null)
+            {
+                response.TotalDescriptionLength = chunkedResult.ChunkMetadata.TotalLength;
+                response.HasMore = chunkedResult.ChunkMetadata.HasMore;
+                response.NextOffset = chunkedResult.ChunkMetadata.NextOffset;
+            }
+
+            return response;
+        });
     }
 
     [HttpPut("{issueKeyOrId}")]
@@ -56,11 +70,35 @@ public class IssuesController(IJiraService jiraService) : ControllerBase
     }
 
     [HttpPost("search")]
-    public async Task<Results<Ok<List<IssueResponse>>, BadRequest, ProblemHttpResult>> SearchIssuesAsync(
-        [FromBody] SearchIssuesRequest request, CancellationToken cancellationToken)
+    public async Task<Results<Ok<ChunkedContentResponse>, BadRequest, NotFound, ProblemHttpResult>> SearchIssuesAsync(
+        [FromBody] SearchIssuesRequest request, [FromQuery] int offset = 0, [FromQuery] int maxLength = 0,
+        CancellationToken cancellationToken = default)
     {
-        var result = await jiraService.SearchIssuesAsync(request.Jql, request.MaxResults, cancellationToken);
-        return result.ToGetResult<Issue, IssueResponse>(i => i.Adapt<IssueResponse>());
+        var result = await jiraService.SearchIssuesAsync(request.Jql, offset, maxLength, request.MaxResults, cancellationToken);
+        return result.ToGetResult<ChunkedResult<List<Issue>>, ChunkedContentResponse>(chunkedResult =>
+        {
+            var issues = chunkedResult.Value.Select(i => i.Adapt<IssueResponse>()).ToList();
+            var serialized = System.Text.Json.JsonSerializer.Serialize(issues);
+
+            if (chunkedResult.ChunkMetadata is not null)
+            {
+                return new ChunkedContentResponse
+                {
+                    Content = chunkedResult.ChunkMetadata.Content,
+                    TotalLength = chunkedResult.ChunkMetadata.TotalLength,
+                    HasMore = chunkedResult.ChunkMetadata.HasMore,
+                    NextOffset = chunkedResult.ChunkMetadata.NextOffset
+                };
+            }
+
+            return new ChunkedContentResponse
+            {
+                Content = serialized,
+                TotalLength = serialized.Length,
+                HasMore = false,
+                NextOffset = null
+            };
+        });
     }
 
     [HttpGet("{issueKeyOrId}/transitions")]
