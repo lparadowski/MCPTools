@@ -1,7 +1,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY . .
-RUN dotnet publish Miro.Api/Miro.Api.csproj -c Release -o /app/publish
+COPY Miro/ Miro/
+COPY Shared/ Shared/
+RUN dotnet publish Miro/Miro.Api/Miro.Api.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 COPY --from=build /app/publish /app
