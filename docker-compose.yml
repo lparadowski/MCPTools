@@ -82,4 +82,5 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - InfrastructureSettings__PolarionBaseUrl=${POLARION_BASE_URL}
       - InfrastructureSettings__PolarionToken=${POLARION_TOKEN}
+      - InfrastructureSettings__DisableSslValidation=${DISABLE_SSL_VALIDATION:-false}
     restart: unless-stopped

@@ -35,6 +35,12 @@ public static class ServiceCollectionExtensions
 
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = settings.DisableSslValidation
+                ? HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                : null
         });
 
         services.AddScoped<IPolarionClient, PolarionClient>();

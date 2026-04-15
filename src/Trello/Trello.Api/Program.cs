@@ -21,6 +21,7 @@ builder.Host.UseSerilog((context, loggerConfig) =>
     loggerConfig
         .ReadFrom.Configuration(context.Configuration)
         .Enrich.WithProperty("Application", "Trello.Api")
+        .WriteTo.Console()
         .WriteTo.Seq("http://localhost:5341");
 });
 

@@ -6,4 +6,5 @@ public class InfrastructureSettings
     public string? PolarionToken { get; set; }
     public string? PolarionUsername { get; set; }
     public string? PolarionPassword { get; set; }
+    public bool DisableSslValidation { get; set; }
 }
