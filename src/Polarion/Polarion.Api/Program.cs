@@ -20,6 +20,7 @@ builder.Host.UseSerilog((context, loggerConfig) =>
 {
     loggerConfig
         .ReadFrom.Configuration(context.Configuration)
+        .WriteTo.Console()
         .WriteTo.Seq("http://localhost:5341")
         .Enrich.WithProperty("Application", "Polarion.Api");
 });
