@@ -41,6 +41,12 @@
     <Project Path="src/Polarion/Polarion.Domain/Polarion.Domain.csproj" />
     <Project Path="src/Polarion/Polarion.Infrastructure/Polarion.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/GitHub/">
+    <Project Path="src/GitHub/GitHub.Api/GitHub.Api.csproj" />
+    <Project Path="src/GitHub/GitHub.Application/GitHub.Application.csproj" />
+    <Project Path="src/GitHub/GitHub.Domain/GitHub.Domain.csproj" />
+    <Project Path="src/GitHub/GitHub.Infrastructure/GitHub.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Shared/">
     <Project Path="src/Shared/Shared.Application/Shared.Application.csproj" />
     <Project Path="src/Shared/Shared.Api/Shared.Api.csproj" />
