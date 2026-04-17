@@ -10,5 +10,6 @@ public class MappingConfig
     {
         config.NewConfig<Repository, RepositoryResponse>();
         config.NewConfig<ActivityEvent, ActivityEventResponse>();
+        config.NewConfig<PullRequest, PullRequestResponse>();
     }
 }

@@ -53,4 +53,36 @@ public static class GitHubTools
         var response = await http.GetAsync(url);
         return await response.ReadContentOrError();
     }
+
+    // Pull Requests
+
+    [McpServerTool(Name = "list_github_pull_requests")]
+    [Description("List pull requests for a GitHub repository. Filter by state: open, closed, or all.")]
+    public static async Task<string> ListPullRequests(
+        IHttpClientFactory httpFactory,
+        [Description("The repository owner (user or organization)")] string owner,
+        [Description("The repository name")] string repo,
+        [Description("PR state filter: open, closed, or all (default: open)")] string? state = null,
+        [Description("Maximum results to return (default 30)")] int maxResults = 30)
+    {
+        var http = httpFactory.CreateClient("GitHubApi");
+        var url = $"/api/v1/repositories/{owner}/{repo}/pullrequests?maxResults={maxResults}";
+        if (!string.IsNullOrWhiteSpace(state))
+            url += $"&state={state}";
+        var response = await http.GetAsync(url);
+        return await response.ReadContentOrError();
+    }
+
+    [McpServerTool(Name = "get_github_pull_request")]
+    [Description("Get a specific pull request from a GitHub repository by number.")]
+    public static async Task<string> GetPullRequest(
+        IHttpClientFactory httpFactory,
+        [Description("The repository owner (user or organization)")] string owner,
+        [Description("The repository name")] string repo,
+        [Description("The pull request number")] int number)
+    {
+        var http = httpFactory.CreateClient("GitHubApi");
+        var response = await http.GetAsync($"/api/v1/repositories/{owner}/{repo}/pullrequests/{number}");
+        return await response.ReadContentOrError();
+    }
 }
