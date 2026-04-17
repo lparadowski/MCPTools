@@ -73,6 +73,18 @@ services:
       - InfrastructureSettings__PersonalAccessToken=${AZURE_DEVOPS_PAT}
     restart: unless-stopped
 
+  github-api:
+    build:
+      context: ./src
+      dockerfile: GitHub/GitHub.Api/Dockerfile
+    ports:
+      - "5007:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__GitHubToken=${GITHUB_TOKEN}
+      - InfrastructureSettings__DisableSslValidation=${DISABLE_SSL_VALIDATION:-false}
+    restart: unless-stopped
+
   polarion-api:
     build:
       context: ./src
