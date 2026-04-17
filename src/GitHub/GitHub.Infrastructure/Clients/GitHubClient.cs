@@ -95,6 +95,50 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         CreatedAt = dto.CreatedAt
     };
 
+    // Pull Requests
+
+    public async Task<List<PullRequest>> GetPullRequestsAsync(string owner, string repo, string? state = null, int maxResults = 30, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("GitHubApi");
+        var url = $"/repos/{owner}/{repo}/pulls?per_page={maxResults}&state={state ?? "open"}";
+
+        var response = await http.GetAsync(url, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var dtos = await response.Content.ReadFromJsonAsync<List<GitHubPullRequestDto>>(cancellationToken: cancellationToken);
+        return dtos?.Select(MapPullRequest).ToList() ?? [];
+    }
+
+    public async Task<PullRequest?> GetPullRequestAsync(string owner, string repo, int number, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("GitHubApi");
+        var response = await http.GetAsync($"/repos/{owner}/{repo}/pulls/{number}", cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        var dto = await response.Content.ReadFromJsonAsync<GitHubPullRequestDto>(cancellationToken: cancellationToken);
+        return dto is not null ? MapPullRequest(dto) : null;
+    }
+
+    private static PullRequest MapPullRequest(GitHubPullRequestDto dto) => new()
+    {
+        Number = dto.Number,
+        Title = dto.Title,
+        State = dto.MergedAt is not null ? "merged" : dto.State,
+        Author = dto.User?.Login,
+        Body = dto.Body,
+        HeadBranch = dto.Head?.Ref,
+        BaseBranch = dto.Base?.Ref,
+        Draft = dto.Draft,
+        Url = dto.HtmlUrl,
+        CreatedAt = dto.CreatedAt,
+        UpdatedAt = dto.UpdatedAt,
+        MergedAt = dto.MergedAt
+    };
+
     private static Repository MapRepository(GitHubRepositoryDto dto) => new()
     {
         Id = dto.Id.ToString(),
