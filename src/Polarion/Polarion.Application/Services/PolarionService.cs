@@ -47,6 +47,14 @@ public class PolarionService(IPolarionClient polarionClient) : IPolarionService
         return Result.Ok(requirement);
     }
 
+    // Document Work Items
+
+    public async Task<Result<List<Requirement>>> GetDocumentWorkItemsAsync(string projectId, string spaceId, string documentName, int maxResults = 50, CancellationToken cancellationToken = default)
+    {
+        var requirements = await polarionClient.GetDocumentWorkItemsAsync(projectId, spaceId, documentName, maxResults, cancellationToken);
+        return Result.Ok(requirements);
+    }
+
     // Linked Work Items
 
     public async Task<Result<List<LinkedWorkItem>>> GetLinkedWorkItemsAsync(string projectId, string workItemId, CancellationToken cancellationToken = default)

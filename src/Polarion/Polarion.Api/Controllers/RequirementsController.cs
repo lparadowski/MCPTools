@@ -23,6 +23,15 @@ public class RequirementsController(IPolarionService polarionService) : Controll
         return result.ToGetResult<Requirement, RequirementResponse>(r => r.Adapt<RequirementResponse>());
     }
 
+    [HttpGet("documents/{spaceId}/{documentName}")]
+    public async Task<Results<Ok<List<RequirementResponse>>, BadRequest, ProblemHttpResult>> GetDocumentWorkItemsAsync(
+        string projectId, string spaceId, string documentName, [FromQuery] int maxResults = 50,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await polarionService.GetDocumentWorkItemsAsync(projectId, spaceId, documentName, maxResults, cancellationToken);
+        return result.ToGetResult<Requirement, RequirementResponse>(r => r.Adapt<RequirementResponse>());
+    }
+
     [HttpGet("{workItemId}")]
     public async Task<Results<Ok<RequirementResponse>, BadRequest, NotFound, ProblemHttpResult>> GetRequirementAsync(
         string projectId, string workItemId, CancellationToken cancellationToken)

@@ -49,6 +49,21 @@ public static class PolarionTools
         return await response.ReadContentOrError();
     }
 
+    [McpServerTool(Name = "list_polarion_document_work_items")]
+    [Description("List all work items (requirements, headings, etc.) within a specific Polarion document. Use the space and document name from the wiki URL path (e.g. for .../wiki/Requirements/MyDocument, spaceId='Requirements' and documentName='MyDocument').")]
+    public static async Task<string> ListDocumentWorkItems(
+        IHttpClientFactory httpFactory,
+        [Description("The project ID")] string projectId,
+        [Description("The space ID from the wiki URL path (e.g. 'Requirements')")] string spaceId,
+        [Description("The document name from the wiki URL path")] string documentName,
+        [Description("Maximum results to return (default 50)")] int maxResults = 50)
+    {
+        var http = httpFactory.CreateClient("PolarionApi");
+        var url = $"/api/v1/projects/{projectId}/requirements/documents/{Uri.EscapeDataString(spaceId)}/{Uri.EscapeDataString(documentName)}?maxResults={maxResults}";
+        var response = await http.GetAsync(url);
+        return await response.ReadContentOrError();
+    }
+
     [McpServerTool(Name = "get_polarion_requirement")]
     [Description("Get a specific requirement (work item) from a Polarion project by its ID.")]
     public static async Task<string> GetRequirement(
