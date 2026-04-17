@@ -5,6 +5,7 @@ services:
       - "5341:80"
     environment:
       - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
     restart: unless-stopped
 
   trello-api:
@@ -70,4 +71,17 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - InfrastructureSettings__Organization=${AZURE_DEVOPS_ORGANIZATION}
       - InfrastructureSettings__PersonalAccessToken=${AZURE_DEVOPS_PAT}
+    restart: unless-stopped
+
+  polarion-api:
+    build:
+      context: ./src
+      dockerfile: Polarion/Polarion.Api/Dockerfile
+    ports:
+      - "5006:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__PolarionBaseUrl=${POLARION_BASE_URL}
+      - InfrastructureSettings__PolarionToken=${POLARION_TOKEN}
+      - InfrastructureSettings__DisableSslValidation=${DISABLE_SSL_VALIDATION:-false}
     restart: unless-stopped
