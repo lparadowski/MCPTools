@@ -78,6 +78,23 @@ public partial class PolarionClient(IHttpClientFactory httpClientFactory) : IPol
         return result?.Data is not null ? MapRequirement(result.Data, projectId) : null;
     }
 
+    // Document Work Items
+
+    public async Task<List<Requirement>> GetDocumentWorkItemsAsync(string projectId, string spaceId, string documentName, int maxResults = 50, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("PolarionApi");
+        var documentId = $"{spaceId}/{documentName}";
+        var query = $"document.id:\"{documentId}\"";
+
+        var url = $"/polarion/rest/v1/projects/{projectId}/workitems?fields[workitems]={WorkItemFields}&page[size]={maxResults}&query={Uri.EscapeDataString(query)}";
+
+        var response = await http.GetAsync(url, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<PolarionJsonApiResponse<PolarionWorkItemDto>>(JsonOptions, cancellationToken);
+        return result?.Data?.Select(dto => MapRequirement(dto, projectId)).ToList() ?? [];
+    }
+
     // Linked Work Items
 
     public async Task<List<LinkedWorkItem>> GetLinkedWorkItemsAsync(string projectId, string workItemId, CancellationToken cancellationToken = default)

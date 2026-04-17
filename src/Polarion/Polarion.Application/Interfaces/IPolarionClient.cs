@@ -12,6 +12,9 @@ public interface IPolarionClient
     Task<List<Requirement>> GetRequirementsAsync(string projectId, string? query = null, int maxResults = 50, CancellationToken cancellationToken = default);
     Task<Requirement?> GetRequirementAsync(string projectId, string workItemId, CancellationToken cancellationToken = default);
 
+    // Document Work Items
+    Task<List<Requirement>> GetDocumentWorkItemsAsync(string projectId, string spaceId, string documentName, int maxResults = 50, CancellationToken cancellationToken = default);
+
     // Linked Work Items
     Task<List<LinkedWorkItem>> GetLinkedWorkItemsAsync(string projectId, string workItemId, CancellationToken cancellationToken = default);
 }

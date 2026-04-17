@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var builder = Host.CreateApplicationBuilder(args);
+builder.Logging.ClearProviders();
 
 var timeout = TimeSpan.FromSeconds(30);
 builder.Services.AddHttpClient("TrelloApi", c => { c.BaseAddress = new Uri("http://localhost:5001"); c.Timeout = timeout; });
