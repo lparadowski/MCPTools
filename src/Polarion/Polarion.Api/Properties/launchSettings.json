@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Polarion.Api": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:61564;http://localhost:61565"
+    }
+  }
+}

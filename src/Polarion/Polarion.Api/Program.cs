@@ -1,28 +1,28 @@
 using Asp.Versioning;
+using Shared.Api.ExceptionHandler;
+using Polarion.Api.Mappings;
+using Polarion.Application;
+using Polarion.Infrastructure;
+using Polarion.Infrastructure.Settings;
 using Mapster;
 using Serilog;
 using System.Text.Json.Serialization;
-using Shared.Api.ExceptionHandler;
-using Miro.Api.Mappings;
-using Miro.Application;
-using Miro.Infrastructure;
-using Miro.Infrastructure.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Bootstrap Serilog
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.WithProperty("Application", "Miro.Api")
+    .Enrich.WithProperty("Application", "Polarion.Api")
     .CreateBootstrapLogger();
 
 builder.Host.UseSerilog((context, loggerConfig) =>
 {
     loggerConfig
         .ReadFrom.Configuration(context.Configuration)
-        .Enrich.WithProperty("Application", "Miro.Api")
         .WriteTo.Console()
-        .WriteTo.Seq("http://localhost:5341");
+        .WriteTo.Seq("http://localhost:5341")
+        .Enrich.WithProperty("Application", "Polarion.Api");
 });
 
 // Configure Mapster
