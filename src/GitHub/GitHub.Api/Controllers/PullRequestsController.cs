@@ -30,4 +30,12 @@ public class PullRequestsController(IGitHubService gitHubService) : ControllerBa
         var result = await gitHubService.GetPullRequestAsync(owner, repo, number, cancellationToken);
         return result.ToGetResult<PullRequest, PullRequestResponse>(pr => pr.Adapt<PullRequestResponse>());
     }
+
+    [HttpGet("{number:int}/reviews")]
+    public async Task<Results<Ok<List<ReviewResponse>>, BadRequest, ProblemHttpResult>> GetPullRequestReviewsAsync(
+        string owner, string repo, int number, CancellationToken cancellationToken)
+    {
+        var result = await gitHubService.GetPullRequestReviewsAsync(owner, repo, number, cancellationToken);
+        return result.ToGetResult<Review, ReviewResponse>(r => r.Adapt<ReviewResponse>());
+    }
 }
