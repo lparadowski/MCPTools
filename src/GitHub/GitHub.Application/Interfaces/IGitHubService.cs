@@ -12,4 +12,8 @@ public interface IGitHubService
     // Pull Requests
     Task<Result<List<PullRequest>>> GetPullRequestsAsync(string owner, string repo, string? state = null, int maxResults = 30, CancellationToken cancellationToken = default);
     Task<Result<PullRequest>> GetPullRequestAsync(string owner, string repo, int number, CancellationToken cancellationToken = default);
+
+    // Comments & Reviews
+    Task<Result<List<IssueComment>>> GetIssueCommentsAsync(string owner, string repo, int number, CancellationToken cancellationToken = default);
+    Task<Result<List<Review>>> GetPullRequestReviewsAsync(string owner, string repo, int number, CancellationToken cancellationToken = default);
 }

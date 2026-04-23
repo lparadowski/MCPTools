@@ -85,4 +85,32 @@ public static class GitHubTools
         var response = await http.GetAsync($"/api/v1/repositories/{owner}/{repo}/pullrequests/{number}");
         return await response.ReadContentOrError();
     }
+
+    // Comments & Reviews
+
+    [McpServerTool(Name = "get_github_issue_comments")]
+    [Description("Get comments on a GitHub issue or pull request.")]
+    public static async Task<string> GetIssueComments(
+        IHttpClientFactory httpFactory,
+        [Description("The repository owner (user or organization)")] string owner,
+        [Description("The repository name")] string repo,
+        [Description("The issue or pull request number")] int number)
+    {
+        var http = httpFactory.CreateClient("GitHubApi");
+        var response = await http.GetAsync($"/api/v1/repositories/{owner}/{repo}/issues/{number}/issuecomments");
+        return await response.ReadContentOrError();
+    }
+
+    [McpServerTool(Name = "get_github_pull_request_reviews")]
+    [Description("Get reviews on a GitHub pull request, including approval status and review comments.")]
+    public static async Task<string> GetPullRequestReviews(
+        IHttpClientFactory httpFactory,
+        [Description("The repository owner (user or organization)")] string owner,
+        [Description("The repository name")] string repo,
+        [Description("The pull request number")] int number)
+    {
+        var http = httpFactory.CreateClient("GitHubApi");
+        var response = await http.GetAsync($"/api/v1/repositories/{owner}/{repo}/pullrequests/{number}/reviews");
+        return await response.ReadContentOrError();
+    }
 }
