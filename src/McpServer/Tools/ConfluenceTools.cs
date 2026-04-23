@@ -115,6 +115,20 @@ public static class ConfluenceTools
         return await response.ReadContentOrError();
     }
 
+    [McpServerTool(Name = "get_confluence_user_activity")]
+    [Description("Get a user's Confluence activity for a date range: pages created, pages edited, and comments made.")]
+    public static async Task<string> GetUserActivity(
+        IHttpClientFactory httpFactory,
+        [Description("The user's Atlassian account ID")] string accountId,
+        [Description("Start date (ISO 8601 format, e.g. '2025-03-01')")] string startDate,
+        [Description("End date (ISO 8601 format, e.g. '2025-03-31')")] string endDate)
+    {
+        var http = httpFactory.CreateClient("ConfluenceApi");
+        var url = $"/api/v1/activity?accountId={Uri.EscapeDataString(accountId)}&startDate={startDate}&endDate={endDate}";
+        var response = await http.GetAsync(url);
+        return await response.ReadContentOrError();
+    }
+
     [McpServerTool(Name = "delete_confluence_page")]
     [Description("Permanently delete a Confluence page. This cannot be undone.")]
     public static async Task<string> DeletePage(
