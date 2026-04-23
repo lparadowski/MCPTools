@@ -19,6 +19,7 @@ public interface IConfluenceService
     Task<Result<Page>> UpdatePageAsync(string pageId, string title, string? body, int version, CancellationToken cancellationToken = default);
     Task<Result> DeletePageAsync(string pageId, CancellationToken cancellationToken = default);
     Task<Result<List<SearchResult>>> SearchAsync(string cql, int maxResults = 25, CancellationToken cancellationToken = default);
+    Task<Result<List<ActivityItem>>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
 }
 
 public class ConfluenceService(IConfluenceClient confluenceClient, ChunkingSettings chunkingSettings) : IConfluenceService
@@ -145,5 +146,11 @@ public class ConfluenceService(IConfluenceClient confluenceClient, ChunkingSetti
     {
         var results = await confluenceClient.SearchAsync(cql, maxResults, cancellationToken);
         return Result.Ok(results);
+    }
+
+    public async Task<Result<List<ActivityItem>>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    {
+        var items = await confluenceClient.GetUserActivityAsync(accountId, startDate, endDate, cancellationToken);
+        return Result.Ok(items);
     }
 }
