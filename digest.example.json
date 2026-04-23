@@ -1,0 +1,22 @@
+{
+  "teams": {
+    "team-alpha": {
+      "members": ["john-smith", "jane-doe"],
+      "jiraActiveSprintOnly": true
+    }
+  },
+  "users": {
+    "john-smith": {
+      "name": "John Smith",
+      "github": "jsmith",
+      "jiraAccountId": "",
+      "confluenceAccountId": ""
+    },
+    "jane-doe": {
+      "name": "Jane Doe",
+      "github": "jdoe",
+      "jiraAccountId": "",
+      "confluenceAccountId": ""
+    }
+  }
+}

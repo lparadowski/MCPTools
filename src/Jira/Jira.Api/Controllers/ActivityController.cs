@@ -20,11 +20,12 @@ public class ActivityController(IJiraService jiraService) : ControllerBase
         [FromQuery] string accountId,
         [FromQuery] DateTime startDate,
         [FromQuery] DateTime endDate,
+        [FromQuery] bool activeSprintOnly = false,
         [FromQuery] int offset = 0,
         [FromQuery] int maxLength = 0,
         CancellationToken cancellationToken = default)
     {
-        var result = await jiraService.GetUserActivityAsync(accountId, startDate, endDate, offset, maxLength, cancellationToken);
+        var result = await jiraService.GetUserActivityAsync(accountId, startDate, endDate, activeSprintOnly, offset, maxLength, cancellationToken);
         return result.ToGetResult<ChunkedResult<List<UserActivity>>, ChunkedContentResponse>(chunkedResult =>
         {
             var activities = chunkedResult.Value.Select(a => a.Adapt<UserActivityResponse>()).ToList();

@@ -513,7 +513,7 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 
     #region Activity
 
-    public async Task<List<UserActivity>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    public async Task<List<UserActivity>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, bool activeSprintOnly = false, CancellationToken cancellationToken = default)
     {
         var http = httpClientFactory.CreateClient("JiraApi");
         var activities = new Dictionary<DateTime, UserActivity>();
@@ -525,6 +525,8 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 
         // 1. Tickets assigned to user on each day
         var assignedJql = $"assignee WAS \"{accountId}\" DURING (\"{startDate:yyyy-MM-dd}\", \"{endDate.AddDays(1):yyyy-MM-dd}\")";
+        if (activeSprintOnly)
+            assignedJql += " AND sprint in openSprints()";
         var assignedIssues = await SearchIssuesAsync(assignedJql, 200, cancellationToken);
 
         foreach (var issue in assignedIssues)
