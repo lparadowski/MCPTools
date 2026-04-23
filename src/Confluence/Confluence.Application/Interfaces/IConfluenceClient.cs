@@ -14,4 +14,5 @@ public interface IConfluenceClient
     Task<Page?> UpdatePageAsync(string pageId, string title, string? body, int version, CancellationToken cancellationToken = default);
     Task<bool> DeletePageAsync(string pageId, CancellationToken cancellationToken = default);
     Task<List<SearchResult>> SearchAsync(string cql, int maxResults = 25, CancellationToken cancellationToken = default);
+    Task<List<ActivityItem>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
 }

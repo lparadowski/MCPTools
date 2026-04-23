@@ -11,5 +11,6 @@ public class MappingConfig
         config.NewConfig<Space, SpaceResponse>();
         config.NewConfig<Page, PageResponse>();
         config.NewConfig<SearchResult, SearchResultResponse>();
+        config.NewConfig<ActivityItem, ActivityItemResponse>();
     }
 }

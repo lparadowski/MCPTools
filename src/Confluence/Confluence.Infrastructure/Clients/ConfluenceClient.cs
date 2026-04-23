@@ -266,6 +266,63 @@ public class ConfluenceClient(IHttpClientFactory httpClientFactory) : IConfluenc
         }).ToList() ?? [];
     }
 
+    public async Task<List<ActivityItem>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    {
+        var from = startDate.ToString("yyyy-MM-dd");
+        var to = endDate.ToString("yyyy-MM-dd");
+
+        var pagesCreatedTask = SearchAsync($"creator = \"{accountId}\" AND created >= \"{from}\" AND created <= \"{to}\" AND type = page", 50, cancellationToken);
+        var pagesEditedTask = SearchAsync($"contributor = \"{accountId}\" AND lastmodified >= \"{from}\" AND lastmodified <= \"{to}\" AND type = page", 50, cancellationToken);
+        var commentsTask = SearchAsync($"creator = \"{accountId}\" AND created >= \"{from}\" AND created <= \"{to}\" AND type = comment", 50, cancellationToken);
+
+        await Task.WhenAll(pagesCreatedTask, pagesEditedTask, commentsTask);
+
+        var createdIds = pagesCreatedTask.Result.Select(r => r.Id).ToHashSet();
+
+        var items = new List<ActivityItem>();
+
+        foreach (var page in pagesCreatedTask.Result)
+        {
+            items.Add(new ActivityItem
+            {
+                Type = "PageCreated",
+                Title = page.Title,
+                Excerpt = page.Excerpt,
+                SpaceKey = page.SpaceKey,
+                Url = page.Url,
+                Date = page.LastModified
+            });
+        }
+
+        foreach (var page in pagesEditedTask.Result.Where(r => !createdIds.Contains(r.Id)))
+        {
+            items.Add(new ActivityItem
+            {
+                Type = "PageEdited",
+                Title = page.Title,
+                Excerpt = page.Excerpt,
+                SpaceKey = page.SpaceKey,
+                Url = page.Url,
+                Date = page.LastModified
+            });
+        }
+
+        foreach (var comment in commentsTask.Result)
+        {
+            items.Add(new ActivityItem
+            {
+                Type = "Comment",
+                Title = comment.Title,
+                Excerpt = comment.Excerpt,
+                SpaceKey = comment.SpaceKey,
+                Url = comment.Url,
+                Date = comment.LastModified
+            });
+        }
+
+        return items.OrderByDescending(i => i.Date).ToList();
+    }
+
     private static string? ExtractCursor(string? nextLink)
     {
         if (string.IsNullOrEmpty(nextLink))

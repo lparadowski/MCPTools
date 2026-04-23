@@ -330,11 +330,12 @@ public static class JiraTools
         [Description("The user's Jira account ID")] string accountId,
         [Description("Start date (ISO 8601 format, e.g. '2025-03-01')")] DateTime startDate,
         [Description("End date (ISO 8601 format, e.g. '2025-03-31')")] DateTime endDate,
+        [Description("Only include tickets in an active sprint. Default: false")] bool activeSprintOnly = false,
         [Description("Character offset into the serialized results. Default: 0")] int offset = 0,
         [Description("Max characters to return. 0 = use server-configured default")] int maxLength = 0)
     {
         var http = httpFactory.CreateClient("JiraApi");
-        var response = await http.GetAsync($"/api/v1/activity?accountId={Uri.EscapeDataString(accountId)}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}&offset={offset}&maxLength={maxLength}");
+        var response = await http.GetAsync($"/api/v1/activity?accountId={Uri.EscapeDataString(accountId)}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}&activeSprintOnly={activeSprintOnly}&offset={offset}&maxLength={maxLength}");
         return await response.ReadContentOrError();
     }
 

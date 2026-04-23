@@ -294,9 +294,9 @@ public class JiraService(IJiraClient jiraClient, ChunkingSettings chunkingSettin
 
     // Activity
 
-    public async Task<Result<ChunkedResult<List<UserActivity>>>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, int offset = 0, int maxLength = 0, CancellationToken cancellationToken = default)
+    public async Task<Result<ChunkedResult<List<UserActivity>>>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, bool activeSprintOnly = false, int offset = 0, int maxLength = 0, CancellationToken cancellationToken = default)
     {
-        var activity = await jiraClient.GetUserActivityAsync(accountId, startDate, endDate, cancellationToken);
+        var activity = await jiraClient.GetUserActivityAsync(accountId, startDate, endDate, activeSprintOnly, cancellationToken);
         var effectiveMaxLength = maxLength > 0 ? maxLength : chunkingSettings.DefaultMaxLength;
         return Result.Ok(ContentChunker.ChunkList(activity, offset, effectiveMaxLength));
     }
