@@ -7,7 +7,9 @@ public static class HttpResponseExtensions
         var content = await response.Content.ReadAsStringAsync();
 
         if (response.IsSuccessStatusCode)
+        {
             return string.IsNullOrWhiteSpace(content) ? "{}" : content;
+        }
 
         return string.IsNullOrWhiteSpace(content)
             ? $"{{\"error\": \"{response.StatusCode}\", \"status\": {(int)response.StatusCode}}}"

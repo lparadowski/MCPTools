@@ -91,10 +91,14 @@ public static class ChromeDevTools
         var result = json.GetProperty("result").GetProperty("result");
 
         if (result.TryGetProperty("value", out var value))
+        {
             return value.ToString();
+        }
 
         if (result.TryGetProperty("description", out var desc))
+        {
             return $"ERROR: {desc.GetString()}";
+        }
 
         return result.GetRawText();
     }
@@ -160,7 +164,9 @@ public static class ChromeDevTools
         await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "done", cancellationToken);
 
         if (errorText != null)
+        {
             return $"ERROR: {errorText}";
+        }
 
         return "OK";
     }
@@ -170,7 +176,10 @@ public static class ChromeDevTools
         var tabs = await ListTabsAsync(endpoint);
         var pages = tabs.Where(t => t.Type == "page").ToList();
         if (pages.Count == 0 || tabIndex < 0 || tabIndex >= pages.Count)
+        {
             return null;
+        }
+
         return pages[tabIndex];
     }
 

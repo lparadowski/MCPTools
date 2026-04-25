@@ -1,6 +1,6 @@
 # MCP Project Tools
 
-An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that gives AI assistants like Claude the ability to interact with project management tools — Jira, Trello, Confluence, Miro, Azure DevOps, and Chrome browser automation.
+An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that gives AI assistants like Claude the ability to interact with project management, source control, and collaboration tools — Jira, Trello, Confluence, Miro, Azure DevOps, GitHub, Polarion, and Chrome browser automation.
 
 Built with .NET 10 and Docker. Each integration runs as an independent microservice behind a unified MCP interface.
 
@@ -13,6 +13,8 @@ Connect this MCP server to Claude (or any MCP-compatible client) and it can:
 - **Confluence** — Create and edit pages and spaces. Search using CQL (Confluence Query Language).
 - **Miro** — List boards and manage sticky notes (create, update, delete with color/position support).
 - **Azure DevOps** — Manage projects, work items, boards, sprints, and teams.
+- **GitHub** — List repositories and pull requests, read PR reviews and issue comments, and get per-user activity.
+- **Polarion** — Browse projects, list and inspect requirements, walk requirement links for traceability.
 - **Chrome** — List open tabs, navigate to URLs, and capture screenshots via Chrome DevTools Protocol.
 
 ## Architecture
@@ -21,19 +23,19 @@ Connect this MCP server to Claude (or any MCP-compatible client) and it can:
 ┌─────────────────┐      ┌──────────────────────┐
 │   Claude CLI    │◄────►│     MCP Server        │
 │  (MCP Client)   │ stdio│  (tool definitions)   │
-└─────────────────┘      └──┬───┬───┬───┬───┬────┘
-                            │   │   │   │   │
-                 HTTP       │   │   │   │   │
-              ┌─────────────┘   │   │   │   └─────────────┐
-              ▼                 ▼   ▼   ▼                 ▼
-       ┌────────────┐  ┌──────────┐ ┌──────────┐  ┌─────────────┐
-       │ Trello API │  │ Jira API │ │ Miro API │  │ Confluence  │
-       │   :5001    │  │  :5004   │ │  :5002   │  │  API :5003  │
-       └────────────┘  └──────────┘ └──────────┘  └─────────────┘
-              ┌──────────────┐  ┌──────────┐
-              │ AzureDevOps  │  │   Seq    │
-              │  API :5005   │  │  :5341   │
-              └──────────────┘  └──────────┘
+└─────────────────┘      └──────────┬───────────┘
+                                    │
+                                 HTTP │
+        ┌────────────────┬────────────┼────────────┬────────────────┐
+        ▼                ▼            ▼            ▼                ▼
+ ┌────────────┐  ┌────────────┐  ┌──────────┐  ┌────────────┐  ┌──────────────┐
+ │ Trello API │  │  Miro API  │  │Confluence│  │  Jira API  │  │ AzureDevOps  │
+ │   :5001    │  │   :5002    │  │ API :5003│  │   :5004    │  │  API :5005   │
+ └────────────┘  └────────────┘  └──────────┘  └────────────┘  └──────────────┘
+ ┌────────────┐  ┌────────────┐  ┌──────────┐
+ │ Polarion   │  │ GitHub API │  │   Seq    │
+ │ API :5006  │  │   :5007    │  │  :5341   │
+ └────────────┘  └────────────┘  └──────────┘
                    Docker containers
 ```
 
@@ -87,6 +89,8 @@ This starts the API containers:
 | Confluence    | 5003 |
 | Jira API      | 5004 |
 | Azure DevOps  | 5005 |
+| Polarion API  | 5006 |
+| GitHub API    | 5007 |
 | Seq           | 5341 |
 
 ### 3. Build the MCP server
@@ -149,6 +153,13 @@ MIRO_ACCESS_TOKEN=your_access_token
 # Azure DevOps (https://dev.azure.com — generate a Personal Access Token)
 AZURE_DEVOPS_ORGANIZATION=your_organization
 AZURE_DEVOPS_PAT=your_personal_access_token
+
+# GitHub (https://github.com/settings/tokens — fine-grained or classic PAT with repo + read:user scopes)
+GITHUB_TOKEN=your_personal_access_token
+
+# Polarion (hosted instance URL + a personal access token)
+POLARION_BASE_URL=https://your-polarion-instance/polarion
+POLARION_TOKEN=your_personal_access_token
 ```
 
 ### Corporate Proxy / SSL Issues
@@ -250,6 +261,26 @@ google-chrome --remote-debugging-port=9222
 | `list_azure_sprints` | List sprints |
 | `list_azure_teams` | List teams |
 
+### GitHub (6 tools)
+| Tool | Description |
+|------|-------------|
+| `list_github_repositories` | List repositories for the authenticated user |
+| `get_github_repository` | Get a repository by owner and name |
+| `list_github_pull_requests` | List PRs for a repository, filter by state |
+| `get_github_pull_request` | Get a specific PR by number |
+| `get_github_pull_request_reviews` | Get reviews and review comments for a PR |
+| `get_github_issue_comments` | Get comments on an issue or PR |
+| `get_github_user_activity` | Get a user's activity (pushes, PRs, comments, reviews) for a date range |
+
+### Polarion (5 tools)
+| Tool | Description |
+|------|-------------|
+| `list_polarion_projects` / `get_polarion_project` | Browse projects |
+| `list_polarion_requirements` | List requirements in a project, optionally filtered by a Polarion query |
+| `list_polarion_document_work_items` | List work items within a specific Polarion document |
+| `get_polarion_requirement` | Get a specific work item by ID |
+| `get_polarion_requirement_links` | Walk linked work items for traceability |
+
 ### Chrome (3 tools)
 | Tool | Description |
 |------|-------------|
@@ -269,6 +300,8 @@ src/
 │       ├── ConfluenceTools.cs
 │       ├── MiroTools.cs
 │       ├── AzureDevOpsTools.cs
+│       ├── GitHubTools.cs
+│       ├── PolarionTools.cs
 │       └── ChromeTools.cs
 │
 ├── Jira/                       # Clean architecture
@@ -281,6 +314,8 @@ src/
 ├── Confluence/                 # Same layered pattern
 ├── Miro/                       # Same layered pattern
 ├── AzureDevOps/                # Same layered pattern
+├── GitHub/                     # Same layered pattern
+├── Polarion/                   # Same layered pattern
 │
 ├── Shared/
 │   ├── Shared.Api/             # GlobalExceptionHandler, ResultExtensions
@@ -317,4 +352,4 @@ Contributions are welcome! The codebase follows clean architecture consistently 
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE.txt)
