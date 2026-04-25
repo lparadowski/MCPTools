@@ -2,7 +2,7 @@ using Asp.Versioning;
 using Mapster;
 using Serilog;
 using System.Text.Json.Serialization;
-using Trello.Api.ExceptionHandler;
+using Shared.Api.ExceptionHandler;
 using Trello.Api.Mappings;
 using Trello.Application;
 using Trello.Infrastructure;
@@ -20,7 +20,9 @@ builder.Host.UseSerilog((context, loggerConfig) =>
 {
     loggerConfig
         .ReadFrom.Configuration(context.Configuration)
-        .Enrich.WithProperty("Application", "Trello.Api");
+        .Enrich.WithProperty("Application", "Trello.Api")
+        .WriteTo.Console()
+        .WriteTo.Seq("http://localhost:5341");
 });
 
 // Configure Mapster
@@ -71,7 +73,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });

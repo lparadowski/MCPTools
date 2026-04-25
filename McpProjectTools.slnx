@@ -1,9 +1,54 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/McpServer/McpServer.csproj" />
+  </Folder>
   <Folder Name="/src/Trello/">
     <Project Path="src/Trello/Trello.Api/Trello.Api.csproj" />
     <Project Path="src/Trello/Trello.Application/Trello.Application.csproj" />
     <Project Path="src/Trello/Trello.Domain/Trello.Domain.csproj" />
     <Project Path="src/Trello/Trello.Infrastructure/Trello.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Confluence/">
+    <Project Path="src/Confluence/Confluence.Api/Confluence.Api.csproj" />
+    <Project Path="src/Confluence/Confluence.Application/Confluence.Application.csproj" />
+    <Project Path="src/Confluence/Confluence.Domain/Confluence.Domain.csproj" />
+    <Project Path="src/Confluence/Confluence.Infrastructure/Confluence.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Chrome/">
+    <Project Path="src/Chrome/Chrome.Core/Chrome.Core.csproj" />
+  </Folder>
+  <Folder Name="/src/Miro/">
+    <Project Path="src/Miro/Miro.Api/Miro.Api.csproj" />
+    <Project Path="src/Miro/Miro.Application/Miro.Application.csproj" />
+    <Project Path="src/Miro/Miro.Domain/Miro.Domain.csproj" />
+    <Project Path="src/Miro/Miro.Infrastructure/Miro.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Jira/">
+    <Project Path="src/Jira/Jira.Api/Jira.Api.csproj" />
+    <Project Path="src/Jira/Jira.Application/Jira.Application.csproj" />
+    <Project Path="src/Jira/Jira.Domain/Jira.Domain.csproj" />
+    <Project Path="src/Jira/Jira.Infrastructure/Jira.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/AzureDevOps/">
+    <Project Path="src/AzureDevOps/AzureDevOps.Api/AzureDevOps.Api.csproj" />
+    <Project Path="src/AzureDevOps/AzureDevOps.Application/AzureDevOps.Application.csproj" />
+    <Project Path="src/AzureDevOps/AzureDevOps.Domain/AzureDevOps.Domain.csproj" />
+    <Project Path="src/AzureDevOps/AzureDevOps.Infrastructure/AzureDevOps.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Polarion/">
+    <Project Path="src/Polarion/Polarion.Api/Polarion.Api.csproj" />
+    <Project Path="src/Polarion/Polarion.Application/Polarion.Application.csproj" />
+    <Project Path="src/Polarion/Polarion.Domain/Polarion.Domain.csproj" />
+    <Project Path="src/Polarion/Polarion.Infrastructure/Polarion.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/GitHub/">
+    <Project Path="src/GitHub/GitHub.Api/GitHub.Api.csproj" />
+    <Project Path="src/GitHub/GitHub.Application/GitHub.Application.csproj" />
+    <Project Path="src/GitHub/GitHub.Domain/GitHub.Domain.csproj" />
+    <Project Path="src/GitHub/GitHub.Infrastructure/GitHub.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Shared/">
+    <Project Path="src/Shared/Shared.Application/Shared.Application.csproj" />
+    <Project Path="src/Shared/Shared.Api/Shared.Api.csproj" />
   </Folder>
 </Solution>

@@ -1,0 +1,99 @@
+services:
+  seq:
+    image: datalust/seq:latest
+    ports:
+      - "5341:80"
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
+    restart: unless-stopped
+
+  trello-api:
+    build:
+      context: ./src
+      dockerfile: Trello/Trello.Api/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__TrelloApiKey=${TRELLO_API_KEY}
+      - InfrastructureSettings__TrelloApiToken=${TRELLO_TOKEN}
+      - InfrastructureSettings__DisableSslValidation=${DISABLE_SSL_VALIDATION:-false}
+    restart: unless-stopped
+
+  confluence-api:
+    build:
+      context: ./src
+      dockerfile: Confluence/Confluence.Api/Dockerfile
+    ports:
+      - "5003:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__ConfluenceBaseUrl=${CONFLUENCE_BASE_URL}
+      - InfrastructureSettings__ConfluenceEmail=${CONFLUENCE_EMAIL}
+      - InfrastructureSettings__ConfluenceApiToken=${CONFLUENCE_API_TOKEN}
+      - ChunkingSettings__DefaultMaxLength=${CONFLUENCE_DEFAULT_MAX_CHUNK_LENGTH:-20000}
+    restart: unless-stopped
+
+  miro-api:
+    build:
+      context: ./src
+      dockerfile: Miro/Miro.Api/Dockerfile
+    ports:
+      - "5002:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__MiroAccessToken=${MIRO_ACCESS_TOKEN}
+      - InfrastructureSettings__DisableSslValidation=${DISABLE_SSL_VALIDATION:-false}
+    restart: unless-stopped
+
+  jira-api:
+    build:
+      context: ./src
+      dockerfile: Jira/Jira.Api/Dockerfile
+    ports:
+      - "5004:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__JiraBaseUrl=${JIRA_BASE_URL}
+      - InfrastructureSettings__JiraEmail=${JIRA_EMAIL}
+      - InfrastructureSettings__JiraApiToken=${JIRA_API_TOKEN}
+      - ChunkingSettings__DefaultMaxLength=${JIRA_DEFAULT_MAX_CHUNK_LENGTH:-20000}
+    restart: unless-stopped
+
+  azuredevops-api:
+    build:
+      context: ./src
+      dockerfile: AzureDevOps/AzureDevOps.Api/Dockerfile
+    ports:
+      - "5005:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__Organization=${AZURE_DEVOPS_ORGANIZATION}
+      - InfrastructureSettings__PersonalAccessToken=${AZURE_DEVOPS_PAT}
+    restart: unless-stopped
+
+  github-api:
+    build:
+      context: ./src
+      dockerfile: GitHub/GitHub.Api/Dockerfile
+    ports:
+      - "5007:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__GitHubToken=${GITHUB_TOKEN}
+      - InfrastructureSettings__DisableSslValidation=${DISABLE_SSL_VALIDATION:-false}
+    restart: unless-stopped
+
+  polarion-api:
+    build:
+      context: ./src
+      dockerfile: Polarion/Polarion.Api/Dockerfile
+    ports:
+      - "5006:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - InfrastructureSettings__PolarionBaseUrl=${POLARION_BASE_URL}
+      - InfrastructureSettings__PolarionToken=${POLARION_TOKEN}
+      - InfrastructureSettings__DisableSslValidation=${DISABLE_SSL_VALIDATION:-false}
+    restart: unless-stopped
