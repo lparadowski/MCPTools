@@ -14,7 +14,9 @@ public static class DigestTools
         var path = FindDigestConfig();
 
         if (path is null)
+        {
             return "digest.json not found. Copy digest.example.json to digest.json and fill in user IDs.";
+        }
 
         return await File.ReadAllTextAsync(path);
     }
@@ -23,14 +25,19 @@ public static class DigestTools
     {
         var candidate = Path.Combine(Directory.GetCurrentDirectory(), "digest.json");
         if (File.Exists(candidate))
+        {
             return candidate;
+        }
 
         var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         while (dir is not null)
         {
             candidate = Path.Combine(dir, "digest.json");
             if (File.Exists(candidate))
+            {
                 return candidate;
+            }
+
             dir = Path.GetDirectoryName(dir);
         }
 
