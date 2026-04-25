@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using GitHub.Api.Requests;
 using GitHub.Api.Responses;
 using GitHub.Application.Interfaces;
 using GitHub.Domain.Entities;
@@ -20,5 +21,13 @@ public class IssueCommentsController(IGitHubService gitHubService) : ControllerB
     {
         var result = await gitHubService.GetIssueCommentsAsync(owner, repo, number, cancellationToken);
         return result.ToGetResult<IssueComment, IssueCommentResponse>(c => c.Adapt<IssueCommentResponse>());
+    }
+
+    [HttpPost]
+    public async Task<Results<Ok<IssueCommentResponse>, BadRequest, NotFound, ProblemHttpResult>> AddIssueCommentAsync(
+        string owner, string repo, int number, [FromBody] AddIssueCommentRequest request, CancellationToken cancellationToken = default)
+    {
+        var result = await gitHubService.AddIssueCommentAsync(owner, repo, number, request.Body, cancellationToken);
+        return result.ToPutResult<IssueComment, IssueCommentResponse>(c => c.Adapt<IssueCommentResponse>());
     }
 }
