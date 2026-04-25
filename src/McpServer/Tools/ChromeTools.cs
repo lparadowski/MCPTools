@@ -21,7 +21,9 @@ public static class ChromeTools
             var pages = tabs.Where(t => t.Type == "page").ToList();
 
             if (pages.Count == 0)
+            {
                 return "No tabs found. Is Chrome running with --remote-debugging-port=9222?";
+            }
 
             var lines = pages.Select((t, i) => $"[{i}] {t.Title}\n    {t.Url}");
             return $"Found {pages.Count} tabs:\n\n{string.Join("\n\n", lines)}";
@@ -46,14 +48,21 @@ public static class ChromeTools
         {
             var tab = await ChromeDevTools.GetPageTabAsync(tabIndex);
             if (tab == null)
+            {
                 return "No suitable tab found.";
+            }
+
             if (string.IsNullOrEmpty(tab.WebSocketDebuggerUrl))
+            {
                 return $"Tab [{tabIndex}] does not expose a WebSocket debugger URL.";
+            }
 
             var result = await ChromeDevTools.NavigateAsync(tab.WebSocketDebuggerUrl, url);
 
             if (result.StartsWith("ERROR:"))
+            {
                 return result;
+            }
 
             return $"OK: navigated to {url}";
         }
@@ -79,15 +88,21 @@ public static class ChromeTools
             var pages = tabs.Where(t => t.Type == "page").ToList();
 
             if (pages.Count == 0)
+            {
                 return "No tabs found. Is Chrome running with --remote-debugging-port=9222?";
+            }
 
             if (tabIndex < 0 || tabIndex >= pages.Count)
+            {
                 return $"Tab index {tabIndex} out of range. Found {pages.Count} tabs (0-{pages.Count - 1}).";
+            }
 
             var tab = pages[tabIndex];
 
             if (string.IsNullOrEmpty(tab.WebSocketDebuggerUrl))
+            {
                 return $"Tab [{tabIndex}] '{tab.Title}' does not expose a WebSocket debugger URL.";
+            }
 
             var screenshotBytes = await ChromeDevTools.CaptureScreenshotAsync(tab.WebSocketDebuggerUrl);
 
