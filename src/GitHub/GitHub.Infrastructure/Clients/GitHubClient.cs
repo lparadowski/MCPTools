@@ -277,6 +277,20 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         return dtos?.Select(MapIssueComment).ToList() ?? [];
     }
 
+    public async Task<IssueComment?> AddIssueCommentAsync(string owner, string repo, int number, string body, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("GitHubApi");
+        var response = await http.PostAsJsonAsync($"/repos/{owner}/{repo}/issues/{number}/comments", new { body }, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        var dto = await response.Content.ReadFromJsonAsync<GitHubIssueCommentDto>(cancellationToken: cancellationToken);
+        return dto is not null ? MapIssueComment(dto) : null;
+    }
+
     public async Task<List<Review>> GetPullRequestReviewsAsync(string owner, string repo, int number, CancellationToken cancellationToken = default)
     {
         var http = httpClientFactory.CreateClient("GitHubApi");

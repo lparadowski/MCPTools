@@ -59,6 +59,18 @@ public class GitHubService(IGitHubClient gitHubClient) : IGitHubService
         return Result.Ok(comments);
     }
 
+    public async Task<Result<IssueComment>> AddIssueCommentAsync(string owner, string repo, int number, string body, CancellationToken cancellationToken = default)
+    {
+        var comment = await gitHubClient.AddIssueCommentAsync(owner, repo, number, body, cancellationToken);
+
+        if (comment is null)
+        {
+            return Result.Fail<IssueComment>(new OperationFailedError());
+        }
+
+        return Result.Ok(comment);
+    }
+
     public async Task<Result<List<Review>>> GetPullRequestReviewsAsync(string owner, string repo, int number, CancellationToken cancellationToken = default)
     {
         var reviews = await gitHubClient.GetPullRequestReviewsAsync(owner, repo, number, cancellationToken);
