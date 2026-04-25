@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Net.Http.Json;
 using ModelContextProtocol.Server;
 
 namespace McpServer.Tools;

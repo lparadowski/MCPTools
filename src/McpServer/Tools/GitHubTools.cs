@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Net.Http.Json;
 using ModelContextProtocol.Server;
 
 namespace McpServer.Tools;
@@ -41,14 +40,24 @@ public static class GitHubTools
         var queryParams = new List<string>();
 
         if (!string.IsNullOrWhiteSpace(username))
+        {
             queryParams.Add($"username={username}");
+        }
+
         if (!string.IsNullOrWhiteSpace(from))
+        {
             queryParams.Add($"from={from}");
+        }
+
         if (!string.IsNullOrWhiteSpace(to))
+        {
             queryParams.Add($"to={to}");
+        }
 
         if (queryParams.Count > 0)
+        {
             url += "?" + string.Join("&", queryParams);
+        }
 
         var response = await http.GetAsync(url);
         return await response.ReadContentOrError();
@@ -68,7 +77,10 @@ public static class GitHubTools
         var http = httpFactory.CreateClient("GitHubApi");
         var url = $"/api/v1/repositories/{owner}/{repo}/pullrequests?maxResults={maxResults}";
         if (!string.IsNullOrWhiteSpace(state))
+        {
             url += $"&state={state}";
+        }
+
         var response = await http.GetAsync(url);
         return await response.ReadContentOrError();
     }
