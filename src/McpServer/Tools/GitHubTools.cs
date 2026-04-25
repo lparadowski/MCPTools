@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Net.Http.Json;
 using ModelContextProtocol.Server;
 
 namespace McpServer.Tools;
@@ -110,6 +111,22 @@ public static class GitHubTools
     {
         var http = httpFactory.CreateClient("GitHubApi");
         var response = await http.GetAsync($"/api/v1/repositories/{owner}/{repo}/issues/{number}/issuecomments");
+        return await response.ReadContentOrError();
+    }
+
+    [McpServerTool(Name = "add_github_issue_comment")]
+    [Description("Add a comment to a GitHub issue or pull request. Markdown is supported.")]
+    public static async Task<string> AddIssueComment(
+        IHttpClientFactory httpFactory,
+        [Description("The repository owner (user or organization)")] string owner,
+        [Description("The repository name")] string repo,
+        [Description("The issue or pull request number")] int number,
+        [Description("The comment body (Markdown supported)")] string body)
+    {
+        var http = httpFactory.CreateClient("GitHubApi");
+        var response = await http.PostAsJsonAsync(
+            $"/api/v1/repositories/{owner}/{repo}/issues/{number}/issuecomments",
+            new { body });
         return await response.ReadContentOrError();
     }
 
