@@ -3,6 +3,14 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Claude Code
+.claude/
+.mcp.json
+mcp.json
+
+# JetBrains Rider
+.idea/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -361,3 +369,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Environment files (contain secrets)
+.env
+
+# Digest config (contains user IDs)
+digest.json
+
+# Claude Code MCP config (contains local paths)
+.mcp.json
