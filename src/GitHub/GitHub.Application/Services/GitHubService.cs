@@ -84,4 +84,10 @@ public class GitHubService(IGitHubClient gitHubClient) : IGitHubService
         var reviews = await gitHubClient.GetPullRequestReviewsAsync(owner, repo, number, cancellationToken);
         return Result.Ok(reviews);
     }
+
+    public async Task<Result<List<ReviewComment>>> GetPullRequestReviewCommentsAsync(string owner, string repo, int number, CancellationToken cancellationToken = default)
+    {
+        var reviewComments = await gitHubClient.GetPullRequestReviewCommentsAsync(owner, repo, number, cancellationToken);
+        return Result.Ok(reviewComments);
+    }
 }
