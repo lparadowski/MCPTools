@@ -2,7 +2,13 @@
   "teams": {
     "team-alpha": {
       "members": ["john-smith", "jane-doe"],
-      "jiraActiveSprintOnly": true
+      "jiraActiveSprintOnly": true,
+      "estimation": {
+        "jiraProject": "PROJ",
+        "activeStatuses": ["In Progress", "In Review"],
+        "unreliableStatuses": ["Awaiting QA"],
+        "_unreliableStatuses_comment": "Statuses where duration is not a reliable effort signal — tickets may wait in these columns due to external factors"
+      }
     }
   },
   "users": {

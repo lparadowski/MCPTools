@@ -14,4 +14,8 @@ public class PullRequestResponse
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? MergedAt { get; set; }
+    public int? Additions { get; set; }
+    public int? Deletions { get; set; }
+    public int? ChangedFiles { get; set; }
+    public int? ReviewComments { get; set; }
 }

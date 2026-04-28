@@ -64,6 +64,9 @@ public interface IJiraClient
     // Activity
     Task<List<UserActivity>> GetUserActivityAsync(string accountId, DateTime startDate, DateTime endDate, bool activeSprintOnly = false, CancellationToken cancellationToken = default);
 
+    // Ticket Profile
+    Task<TicketProfile?> GetTicketProfileAsync(string issueKey, CancellationToken cancellationToken = default);
+
     // Fields
     Task<Dictionary<string, string>> GetFieldsAsync(CancellationToken cancellationToken = default);
 }

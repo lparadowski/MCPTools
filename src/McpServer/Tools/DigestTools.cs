@@ -8,22 +8,22 @@ namespace McpServer.Tools;
 public static class DigestTools
 {
     [McpServerTool(Name = "get_digest_config")]
-    [Description("Get the digest configuration containing team definitions and user ID mappings across services (GitHub, Jira, Confluence). Use this to look up user identifiers before fetching activity.")]
+    [Description("Get the teams configuration containing team definitions, user ID mappings across services (GitHub, Jira, Confluence), and team-specific settings like estimation parameters. Use this to look up user identifiers before fetching activity or running analysis.")]
     public static async Task<string> GetDigestConfig()
     {
-        var path = FindDigestConfig();
+        var path = FindTeamsConfig();
 
         if (path is null)
         {
-            return "digest.json not found. Copy digest.example.json to digest.json and fill in user IDs.";
+            return "teams.json not found. Copy teams.example.json to teams.json and fill in user IDs.";
         }
 
         return await File.ReadAllTextAsync(path);
     }
 
-    private static string? FindDigestConfig()
+    private static string? FindTeamsConfig()
     {
-        var candidate = Path.Combine(Directory.GetCurrentDirectory(), "digest.json");
+        var candidate = Path.Combine(Directory.GetCurrentDirectory(), "teams.json");
         if (File.Exists(candidate))
         {
             return candidate;
@@ -32,7 +32,7 @@ public static class DigestTools
         var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         while (dir is not null)
         {
-            candidate = Path.Combine(dir, "digest.json");
+            candidate = Path.Combine(dir, "teams.json");
             if (File.Exists(candidate))
             {
                 return candidate;

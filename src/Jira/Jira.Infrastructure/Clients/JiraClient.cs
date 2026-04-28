@@ -622,6 +622,93 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 
     #endregion
 
+    #region Ticket Profile
+
+    public async Task<TicketProfile?> GetTicketProfileAsync(string issueKey, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("JiraApi");
+
+        var issueTask = GetIssueAsync(issueKey, cancellationToken);
+        var changelogTask = http.GetAsync($"/rest/api/3/issue/{issueKey}/changelog", cancellationToken);
+        var worklogsTask = GetWorklogsAsync(issueKey, cancellationToken);
+
+        await Task.WhenAll(issueTask, changelogTask, worklogsTask);
+
+        var issue = issueTask.Result;
+        if (issue is null)
+        {
+            return null;
+        }
+
+        var statusDurations = new Dictionary<string, double>();
+        var statusTransitions = new List<StatusTransition>();
+
+        if (changelogTask.Result.IsSuccessStatusCode)
+        {
+            var changelog = await changelogTask.Result.Content.ReadFromJsonAsync<JiraChangelogResponseDto>(JsonOptions, cancellationToken);
+            if (changelog?.Values is not null)
+            {
+                var transitions = changelog.Values
+                    .SelectMany(h => (h.Items ?? [])
+                        .Where(i => i.Field == "status" && h.Created is not null)
+                        .Select(i => new { Time = DateTime.Parse(h.Created!), From = i.FromString ?? "Unknown", To = i.ToString ?? "Unknown" }))
+                    .OrderBy(t => t.Time)
+                    .ToList();
+
+                statusTransitions = transitions.Select(t => new StatusTransition
+                {
+                    FromStatus = t.From,
+                    ToStatus = t.To,
+                    TransitionedAt = t.Time
+                }).ToList();
+
+                var previousTime = issue.Created ?? DateTime.UtcNow;
+                var previousStatus = transitions.FirstOrDefault()?.From ?? issue.Status;
+
+                foreach (var transition in transitions)
+                {
+                    var durationHours = (transition.Time - previousTime).TotalHours;
+                    statusDurations.TryAdd(previousStatus, 0);
+                    statusDurations[previousStatus] += durationHours;
+
+                    previousStatus = transition.To;
+                    previousTime = transition.Time;
+                }
+
+                var currentDuration = (DateTime.UtcNow - previousTime).TotalHours;
+                statusDurations.TryAdd(previousStatus, 0);
+                statusDurations[previousStatus] += currentDuration;
+            }
+        }
+
+        var worklogs = worklogsTask.Result;
+
+        return new TicketProfile
+        {
+            Key = issue.Key,
+            Summary = issue.Summary,
+            IssueType = issue.IssueType,
+            Status = issue.Status,
+            Assignee = issue.AssigneeDisplayName,
+            Created = issue.Created ?? DateTime.MinValue,
+            Updated = issue.Updated ?? DateTime.MinValue,
+            StatusDurationsHours = statusDurations.ToDictionary(
+                kvp => kvp.Key,
+                kvp => Math.Round(kvp.Value, 1)),
+            StatusTransitions = statusTransitions,
+            TotalWorklogHours = Math.Round(worklogs.Sum(w => w.TimeSpentSeconds ?? 0) / 3600.0, 1),
+            Worklogs = worklogs.Select(w => new WorklogEntry
+            {
+                Author = w.AuthorDisplayName ?? "Unknown",
+                Hours = Math.Round((w.TimeSpentSeconds ?? 0) / 3600.0, 1),
+                Comment = w.Comment,
+                Started = w.Started ?? DateTime.MinValue
+            }).ToList()
+        };
+    }
+
+    #endregion
+
     #region Fields
 
     public async Task<Dictionary<string, string>> GetFieldsAsync(CancellationToken cancellationToken = default)

@@ -165,6 +165,14 @@ public class IssuesController(IJiraService jiraService) : ControllerBase
         return result.ToGetResult<Worklog, WorklogResponse>(w => w.Adapt<WorklogResponse>());
     }
 
+    [HttpGet("{issueKeyOrId}/profile")]
+    public async Task<Results<Ok<TicketProfileResponse>, BadRequest, NotFound, ProblemHttpResult>> GetTicketProfileAsync(
+        string issueKeyOrId, CancellationToken cancellationToken)
+    {
+        var result = await jiraService.GetTicketProfileAsync(issueKeyOrId, cancellationToken);
+        return result.ToGetResult<TicketProfile, TicketProfileResponse>(p => p.Adapt<TicketProfileResponse>());
+    }
+
     [HttpPost("{issueKeyOrId}/worklogs")]
     public async Task<Results<Ok<WorklogResponse>, BadRequest, NotFound, ProblemHttpResult>> AddWorklogAsync(
         string issueKeyOrId, [FromBody] AddWorklogRequest request, CancellationToken cancellationToken)
