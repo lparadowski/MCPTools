@@ -41,14 +41,24 @@ public static class GitHubTools
         var queryParams = new List<string>();
 
         if (!string.IsNullOrWhiteSpace(username))
+        {
             queryParams.Add($"username={username}");
+        }
+
         if (!string.IsNullOrWhiteSpace(from))
+        {
             queryParams.Add($"from={from}");
+        }
+
         if (!string.IsNullOrWhiteSpace(to))
+        {
             queryParams.Add($"to={to}");
+        }
 
         if (queryParams.Count > 0)
+        {
             url += "?" + string.Join("&", queryParams);
+        }
 
         var response = await http.GetAsync(url);
         return await response.ReadContentOrError();
@@ -68,7 +78,10 @@ public static class GitHubTools
         var http = httpFactory.CreateClient("GitHubApi");
         var url = $"/api/v1/repositories/{owner}/{repo}/pullrequests?maxResults={maxResults}";
         if (!string.IsNullOrWhiteSpace(state))
+        {
             url += $"&state={state}";
+        }
+
         var response = await http.GetAsync(url);
         return await response.ReadContentOrError();
     }
@@ -98,6 +111,22 @@ public static class GitHubTools
     {
         var http = httpFactory.CreateClient("GitHubApi");
         var response = await http.GetAsync($"/api/v1/repositories/{owner}/{repo}/issues/{number}/issuecomments");
+        return await response.ReadContentOrError();
+    }
+
+    [McpServerTool(Name = "add_github_issue_comment")]
+    [Description("Add a comment to a GitHub issue or pull request. Markdown is supported.")]
+    public static async Task<string> AddIssueComment(
+        IHttpClientFactory httpFactory,
+        [Description("The repository owner (user or organization)")] string owner,
+        [Description("The repository name")] string repo,
+        [Description("The issue or pull request number")] int number,
+        [Description("The comment body (Markdown supported)")] string body)
+    {
+        var http = httpFactory.CreateClient("GitHubApi");
+        var response = await http.PostAsJsonAsync(
+            $"/api/v1/repositories/{owner}/{repo}/issues/{number}/issuecomments",
+            new { body });
         return await response.ReadContentOrError();
     }
 

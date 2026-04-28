@@ -4,7 +4,6 @@ using System.Text.Json;
 using Jira.Application.Interfaces;
 using Jira.Domain.Entities;
 using Jira.Infrastructure.Dtos;
-using Jira.Infrastructure.Parsing;
 using Mapster;
 
 namespace Jira.Infrastructure.Clients;
@@ -526,7 +525,10 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
         // 1. Tickets assigned to user on each day
         var assignedJql = $"assignee WAS \"{accountId}\" DURING (\"{startDate:yyyy-MM-dd}\", \"{endDate.AddDays(1):yyyy-MM-dd}\")";
         if (activeSprintOnly)
+        {
             assignedJql += " AND sprint in openSprints()";
+        }
+
         var assignedIssues = await SearchIssuesAsync(assignedJql, 200, cancellationToken);
 
         foreach (var issue in assignedIssues)

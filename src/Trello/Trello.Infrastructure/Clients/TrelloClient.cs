@@ -31,12 +31,16 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
         var http = httpClientFactory.CreateClient("TrelloApi");
         var query = $"/1/boards?name={Uri.EscapeDataString(name)}";
         if (description is not null)
+        {
             query += $"&desc={Uri.EscapeDataString(description)}";
+        }
 
         var response = await http.PostAsync(query, null, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         var dto = await response.Content.ReadFromJsonAsync<TrelloBoardDto>(JsonOptions, cancellationToken);
         return dto?.Adapt<Board>();
@@ -48,10 +52,15 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
         var response = await http.GetAsync($"/1/boards/{boardId}?fields=name,desc,url", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         var dto = await response.Content.ReadFromJsonAsync<TrelloBoardDto>(JsonOptions, cancellationToken);
-        if (dto is null) return null;
+        if (dto is null)
+        {
+            return null;
+        }
 
         var board = dto.Adapt<Board>();
 
@@ -70,7 +79,9 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
         var response = await http.PutAsync($"/1/boards/{boardId}?closed=true", null, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         var dto = await response.Content.ReadFromJsonAsync<TrelloBoardDto>(JsonOptions, cancellationToken);
         return dto?.Adapt<Board>();
@@ -105,7 +116,10 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
         {
             var card = c.Adapt<Card>();
             if (c.IdList is not null && listMap.TryGetValue(c.IdList, out var listName))
+            {
                 card.ListName = listName;
+            }
+
             return card;
         }).ToList() ?? [];
     }
@@ -118,10 +132,15 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
             cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         var dto = await response.Content.ReadFromJsonAsync<TrelloCardDto>(JsonOptions, cancellationToken);
-        if (dto is null) return null;
+        if (dto is null)
+        {
+            return null;
+        }
 
         var card = dto.Adapt<Card>();
 
@@ -153,12 +172,16 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
         var http = httpClientFactory.CreateClient("TrelloApi");
         var query = $"/1/cards?idList={Uri.EscapeDataString(listId)}&name={Uri.EscapeDataString(name)}";
         if (description is not null)
+        {
             query += $"&desc={Uri.EscapeDataString(description)}";
+        }
 
         var response = await http.PostAsync(query, null, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         var dto = await response.Content.ReadFromJsonAsync<TrelloCardDto>(JsonOptions, cancellationToken);
         return dto?.Adapt<Card>();
@@ -168,13 +191,22 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
     {
         var http = httpClientFactory.CreateClient("TrelloApi");
         var parts = new List<string>();
-        if (name is not null) parts.Add($"name={Uri.EscapeDataString(name)}");
-        if (description is not null) parts.Add($"desc={Uri.EscapeDataString(description)}");
+        if (name is not null)
+        {
+            parts.Add($"name={Uri.EscapeDataString(name)}");
+        }
+
+        if (description is not null)
+        {
+            parts.Add($"desc={Uri.EscapeDataString(description)}");
+        }
 
         var response = await http.PutAsync($"/1/cards/{cardId}?{string.Join("&", parts)}", null, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         var dto = await response.Content.ReadFromJsonAsync<TrelloCardDto>(JsonOptions, cancellationToken);
         return dto?.Adapt<Card>();
@@ -188,10 +220,15 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
             null, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         var dto = await response.Content.ReadFromJsonAsync<TrelloCardDto>(JsonOptions, cancellationToken);
-        if (dto is null) return null;
+        if (dto is null)
+        {
+            return null;
+        }
 
         var card = dto.Adapt<Card>();
 
@@ -212,7 +249,9 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
         var response = await http.PutAsync($"/1/cards/{cardId}?closed=true", null, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         var dto = await response.Content.ReadFromJsonAsync<TrelloCardDto>(JsonOptions, cancellationToken);
         return dto?.Adapt<Card>();
@@ -268,7 +307,9 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
             null, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         var dto = await response.Content.ReadFromJsonAsync<TrelloLabelDto>(JsonOptions, cancellationToken);
         return dto?.Adapt<Label>();
@@ -282,7 +323,9 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
             null, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         return await GetCardByIdAsync(cardId, cancellationToken);
     }
@@ -293,7 +336,9 @@ public class TrelloClient(IHttpClientFactory httpClientFactory) : ITrelloClient
         var response = await http.DeleteAsync($"/1/cards/{cardId}/idLabels/{labelId}", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return null;
+        }
 
         return await GetCardByIdAsync(cardId, cancellationToken);
     }

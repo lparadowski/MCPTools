@@ -14,7 +14,9 @@ public static class DigestTools
         var path = FindTeamsConfig();
 
         if (path is null)
+        {
             return "teams.json not found. Copy teams.example.json to teams.json and fill in user IDs.";
+        }
 
         return await File.ReadAllTextAsync(path);
     }
@@ -23,14 +25,19 @@ public static class DigestTools
     {
         var candidate = Path.Combine(Directory.GetCurrentDirectory(), "teams.json");
         if (File.Exists(candidate))
+        {
             return candidate;
+        }
 
         var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         while (dir is not null)
         {
             candidate = Path.Combine(dir, "teams.json");
             if (File.Exists(candidate))
+            {
                 return candidate;
+            }
+
             dir = Path.GetDirectoryName(dir);
         }
 
