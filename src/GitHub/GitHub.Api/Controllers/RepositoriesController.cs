@@ -29,4 +29,13 @@ public class RepositoriesController(IGitHubService gitHubService) : ControllerBa
         var result = await gitHubService.GetRepositoryAsync(owner, repo, cancellationToken);
         return result.ToGetResult<Repository, RepositoryResponse>(r => r.Adapt<RepositoryResponse>());
     }
+
+    [HttpGet("{owner}/{repo}/activity")]
+    public async Task<Results<Ok<List<ActivityEventResponse>>, BadRequest, ProblemHttpResult>> GetRepositoryActivityAsync(
+        string owner, string repo, [FromQuery] DateOnly? from = null, [FromQuery] DateOnly? to = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await gitHubService.GetRepositoryActivityAsync(owner, repo, from, to, cancellationToken);
+        return result.ToGetResult<ActivityEvent, ActivityEventResponse>(e => e.Adapt<ActivityEventResponse>());
+    }
 }

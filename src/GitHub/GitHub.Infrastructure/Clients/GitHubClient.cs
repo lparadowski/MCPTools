@@ -144,6 +144,159 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         return events.OrderByDescending(e => e.CreatedAt).ToList();
     }
 
+    public async Task<List<ActivityEvent>> GetRepositoryActivityAsync(string owner, string repo, DateOnly? from = null, DateOnly? to = null, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("GitHubApi");
+        var repoSlug = $"{owner}/{repo}";
+
+        var fromDate = from ?? DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var toDate = to ?? DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var dateRange = $"{fromDate:yyyy-MM-dd}..{toDate:yyyy-MM-dd}";
+
+        var prsOpenedTask = SearchIssuesAsync(http, $"repo:{repoSlug} type:pr created:{dateRange}", cancellationToken);
+        var prsMergedTask = SearchIssuesAsync(http, $"repo:{repoSlug} type:pr merged:{dateRange}", cancellationToken);
+        var prsClosed = SearchIssuesAsync(http, $"repo:{repoSlug} type:pr closed:{dateRange} -is:merged", cancellationToken);
+        var issuesOpenedTask = SearchIssuesAsync(http, $"repo:{repoSlug} type:issue created:{dateRange}", cancellationToken);
+        var issuesClosedTask = SearchIssuesAsync(http, $"repo:{repoSlug} type:issue closed:{dateRange}", cancellationToken);
+        var commitsTask = SearchCommitsAsync(http, $"repo:{repoSlug} author-date:{dateRange}", cancellationToken);
+
+        await Task.WhenAll(prsOpenedTask, prsMergedTask, prsClosed, issuesOpenedTask, issuesClosedTask, commitsTask);
+
+        var events = new List<ActivityEvent>();
+
+        foreach (var pr in prsOpenedTask.Result)
+        {
+            events.Add(new ActivityEvent
+            {
+                Id = pr.Id.ToString(),
+                Type = "PullRequest",
+                Action = "opened",
+                Author = pr.User?.Login,
+                Repo = repoSlug,
+                Number = pr.Number,
+                Title = pr.Title,
+                CreatedAt = pr.CreatedAt
+            });
+        }
+
+        foreach (var pr in prsMergedTask.Result)
+        {
+            events.Add(new ActivityEvent
+            {
+                Id = $"merged-{pr.Id}",
+                Type = "PullRequest",
+                Action = "merged",
+                Author = pr.User?.Login,
+                Repo = repoSlug,
+                Number = pr.Number,
+                Title = pr.Title,
+                CreatedAt = pr.UpdatedAt ?? pr.CreatedAt
+            });
+        }
+
+        foreach (var pr in prsClosed.Result)
+        {
+            events.Add(new ActivityEvent
+            {
+                Id = $"closed-{pr.Id}",
+                Type = "PullRequest",
+                Action = "closed",
+                Author = pr.User?.Login,
+                Repo = repoSlug,
+                Number = pr.Number,
+                Title = pr.Title,
+                CreatedAt = pr.UpdatedAt ?? pr.CreatedAt
+            });
+        }
+
+        foreach (var issue in issuesOpenedTask.Result)
+        {
+            events.Add(new ActivityEvent
+            {
+                Id = issue.Id.ToString(),
+                Type = "Issue",
+                Action = "opened",
+                Author = issue.User?.Login,
+                Repo = repoSlug,
+                Number = issue.Number,
+                Title = issue.Title,
+                CreatedAt = issue.CreatedAt
+            });
+        }
+
+        foreach (var issue in issuesClosedTask.Result)
+        {
+            events.Add(new ActivityEvent
+            {
+                Id = $"closed-{issue.Id}",
+                Type = "Issue",
+                Action = "closed",
+                Author = issue.User?.Login,
+                Repo = repoSlug,
+                Number = issue.Number,
+                Title = issue.Title,
+                CreatedAt = issue.UpdatedAt ?? issue.CreatedAt
+            });
+        }
+
+        foreach (var commit in commitsTask.Result)
+        {
+            events.Add(new ActivityEvent
+            {
+                Id = commit.Sha,
+                Type = "Commit",
+                Author = commit.Commit?.Author?.Name,
+                Repo = repoSlug,
+                CommitMessages = [commit.Commit?.Message?.Split('\n').FirstOrDefault() ?? string.Empty],
+                CommitCount = 1,
+                CreatedAt = commit.Commit?.Author?.Date ?? DateTime.MinValue
+            });
+        }
+
+        // Fetch reviews for PRs that had activity in the date range
+        var activePrNumbers = events
+            .Where(e => e.Type == "PullRequest" && e.Number is not null)
+            .Select(e => e.Number!.Value)
+            .Distinct()
+            .ToList();
+
+        var reviewTasks = activePrNumbers.Select(async number =>
+        {
+            var reviews = await GetPullRequestReviewsAsync(owner, repo, number, cancellationToken);
+            return (number, reviews);
+        }).ToList();
+
+        var reviewResults = await Task.WhenAll(reviewTasks);
+
+        foreach (var (number, reviews) in reviewResults)
+        {
+            var prTitle = events.FirstOrDefault(e => e.Number == number)?.Title;
+            foreach (var review in reviews)
+            {
+                var reviewDate = DateOnly.FromDateTime(review.SubmittedAt);
+                if (reviewDate < fromDate || reviewDate > toDate)
+                {
+                    continue;
+                }
+
+                events.Add(new ActivityEvent
+                {
+                    Id = $"review-{review.Id}",
+                    Type = "PullRequestReview",
+                    Action = review.State.ToLowerInvariant(),
+                    Author = review.Author,
+                    Repo = repoSlug,
+                    Number = number,
+                    Title = prTitle,
+                    Body = review.Body,
+                    CreatedAt = review.SubmittedAt
+                });
+            }
+        }
+
+        return events.OrderByDescending(e => e.CreatedAt).ToList();
+    }
+
     private async Task EnrichActivityEventAsync(HttpClient http, ActivityEvent activityEvent, string username, DateOnly fromDate, DateOnly toDate, CancellationToken cancellationToken)
     {
         var repoParts = activityEvent.Repo.Split('/');

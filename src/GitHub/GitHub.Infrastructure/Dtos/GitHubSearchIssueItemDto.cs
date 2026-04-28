@@ -13,6 +13,9 @@ internal class GitHubSearchIssueItemDto
     [JsonPropertyName("title")]
     public string Title { get; set; } = string.Empty;
 
+    [JsonPropertyName("user")]
+    public GitHubUserDto? User { get; set; }
+
     [JsonPropertyName("state")]
     public string? State { get; set; }
 
