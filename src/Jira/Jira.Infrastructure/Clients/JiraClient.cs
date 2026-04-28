@@ -636,7 +636,9 @@ public class JiraClient(IHttpClientFactory httpClientFactory) : IJiraClient
 
         var issue = issueTask.Result;
         if (issue is null)
+        {
             return null;
+        }
 
         var statusDurations = new Dictionary<string, double>();
         var statusTransitions = new List<StatusTransition>();
