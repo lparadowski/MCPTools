@@ -31,6 +31,12 @@ public class GitHubService(IGitHubClient gitHubClient) : IGitHubService
         return Result.Ok(events);
     }
 
+    public async Task<Result<List<ActivityEvent>>> GetRepositoryActivityAsync(string owner, string repo, DateOnly? from = null, DateOnly? to = null, CancellationToken cancellationToken = default)
+    {
+        var events = await gitHubClient.GetRepositoryActivityAsync(owner, repo, from, to, cancellationToken);
+        return Result.Ok(events);
+    }
+
     // Pull Requests
 
     public async Task<Result<List<PullRequest>>> GetPullRequestsAsync(string owner, string repo, string? state = null, int maxResults = 30, CancellationToken cancellationToken = default)
