@@ -258,8 +258,39 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         Url = dto.HtmlUrl,
         CreatedAt = dto.CreatedAt,
         UpdatedAt = dto.UpdatedAt,
-        MergedAt = dto.MergedAt
+        MergedAt = dto.MergedAt,
+        Additions = dto.Additions,
+        Deletions = dto.Deletions,
+        ChangedFiles = dto.ChangedFiles,
+        ReviewComments = dto.ReviewComments
     };
+
+    // Search
+
+    public async Task<List<PullRequest>> SearchPullRequestsAsync(string query, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("GitHubApi");
+        var searchResults = await SearchIssuesAsync(http, $"{query} type:pr", cancellationToken);
+
+        var pullRequests = new List<PullRequest>();
+        foreach (var result in searchResults)
+        {
+            var repo = ExtractRepoName(result.RepositoryUrl);
+            var parts = repo.Split('/');
+            if (parts.Length != 2)
+            {
+                continue;
+            }
+
+            var pr = await GetPullRequestAsync(parts[0], parts[1], result.Number, cancellationToken);
+            if (pr is not null)
+            {
+                pullRequests.Add(pr);
+            }
+        }
+
+        return pullRequests;
+    }
 
     // Comments & Reviews
 

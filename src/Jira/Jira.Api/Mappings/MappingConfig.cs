@@ -15,5 +15,8 @@ public class MappingConfig
         config.NewConfig<Board, BoardResponse>();
         config.NewConfig<Sprint, SprintResponse>();
         config.NewConfig<Worklog, WorklogResponse>();
+        config.NewConfig<TicketProfile, TicketProfileResponse>();
+        config.NewConfig<StatusTransition, StatusTransitionResponse>();
+        config.NewConfig<WorklogEntry, WorklogEntryResponse>();
     }
 }
