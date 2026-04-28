@@ -373,8 +373,8 @@ FodyWeavers.xsd
 # Environment files (contain secrets)
 .env
 
-# Digest config (contains user IDs)
-digest.json
+# Teams config (contains user IDs)
+teams.json
 
 # Claude Code MCP config (contains local paths)
 .mcp.json

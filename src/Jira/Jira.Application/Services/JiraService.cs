@@ -301,6 +301,20 @@ public class JiraService(IJiraClient jiraClient, ChunkingSettings chunkingSettin
         return Result.Ok(ContentChunker.ChunkList(activity, offset, effectiveMaxLength));
     }
 
+    // Ticket Profile
+
+    public async Task<Result<TicketProfile>> GetTicketProfileAsync(string issueKey, CancellationToken cancellationToken = default)
+    {
+        var profile = await jiraClient.GetTicketProfileAsync(issueKey, cancellationToken);
+
+        if (profile is null)
+        {
+            return Result.Fail<TicketProfile>(new EntityDoesNotExistError());
+        }
+
+        return Result.Ok(profile);
+    }
+
     // Fields
 
     public async Task<Result<Dictionary<string, string>>> GetFieldsAsync(CancellationToken cancellationToken = default)

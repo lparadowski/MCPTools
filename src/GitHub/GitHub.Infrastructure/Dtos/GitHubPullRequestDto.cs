@@ -39,4 +39,16 @@ internal class GitHubPullRequestDto
 
     [JsonPropertyName("merged_at")]
     public DateTime? MergedAt { get; set; }
+
+    [JsonPropertyName("additions")]
+    public int? Additions { get; set; }
+
+    [JsonPropertyName("deletions")]
+    public int? Deletions { get; set; }
+
+    [JsonPropertyName("changed_files")]
+    public int? ChangedFiles { get; set; }
+
+    [JsonPropertyName("review_comments")]
+    public int? ReviewComments { get; set; }
 }
