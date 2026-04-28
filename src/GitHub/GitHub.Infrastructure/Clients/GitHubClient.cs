@@ -277,11 +277,16 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         {
             var repo = ExtractRepoName(result.RepositoryUrl);
             var parts = repo.Split('/');
-            if (parts.Length != 2) continue;
+            if (parts.Length != 2)
+            {
+                continue;
+            }
 
             var pr = await GetPullRequestAsync(parts[0], parts[1], result.Number, cancellationToken);
             if (pr is not null)
+            {
                 pullRequests.Add(pr);
+            }
         }
 
         return pullRequests;

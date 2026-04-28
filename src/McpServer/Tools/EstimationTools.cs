@@ -28,10 +28,14 @@ public static class EstimationTools
         var githubPrs = "[]";
 
         if (githubTask.Result.IsSuccessStatusCode)
+        {
             githubPrs = await githubTask.Result.Content.ReadAsStringAsync();
+        }
 
         if (!jiraTask.Result.IsSuccessStatusCode)
+        {
             return await jiraTask.Result.ReadContentOrError();
+        }
 
         var result = new
         {
