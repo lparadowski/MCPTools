@@ -7,6 +7,7 @@ public interface IGitHubClient
     Task<List<Repository>> GetRepositoriesAsync(CancellationToken cancellationToken = default);
     Task<Repository?> GetRepositoryAsync(string owner, string repo, CancellationToken cancellationToken = default);
     Task<List<ActivityEvent>> GetUserActivityAsync(string? username = null, DateOnly? from = null, DateOnly? to = null, CancellationToken cancellationToken = default);
+    Task<List<ActivityEvent>> GetRepositoryActivityAsync(string owner, string repo, DateOnly? from = null, DateOnly? to = null, CancellationToken cancellationToken = default);
 
     // Pull Requests
     Task<List<PullRequest>> GetPullRequestsAsync(string owner, string repo, string? state = null, int maxResults = 30, CancellationToken cancellationToken = default);

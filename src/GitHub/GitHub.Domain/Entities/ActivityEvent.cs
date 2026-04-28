@@ -5,6 +5,7 @@ public class ActivityEvent
     public required string Id { get; set; }
     public required string Type { get; set; }
     public required string Repo { get; set; }
+    public string? Author { get; set; }
     public string? Action { get; set; }
     public string? Ref { get; set; }
     public int? Number { get; set; }

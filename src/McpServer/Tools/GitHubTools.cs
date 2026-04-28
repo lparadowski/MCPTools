@@ -64,6 +64,38 @@ public static class GitHubTools
         return await response.ReadContentOrError();
     }
 
+    [McpServerTool(Name = "get_github_repository_activity")]
+    [Description("Get all activity for a GitHub repository on a given date or date range. Returns PRs opened/merged/closed, commits, reviews, and issues — each with the author who performed the action.")]
+    public static async Task<string> GetRepositoryActivity(
+        IHttpClientFactory httpFactory,
+        [Description("The repository owner (user or organization)")] string owner,
+        [Description("The repository name")] string repo,
+        [Description("Start date in yyyy-MM-dd format (defaults to today)")] string? from = null,
+        [Description("End date in yyyy-MM-dd format (defaults to same as from)")] string? to = null)
+    {
+        var http = httpFactory.CreateClient("GitHubApi");
+        var url = $"/api/v1/repositories/{owner}/{repo}/activity";
+        var queryParams = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(from))
+        {
+            queryParams.Add($"from={from}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(to))
+        {
+            queryParams.Add($"to={to}");
+        }
+
+        if (queryParams.Count > 0)
+        {
+            url += "?" + string.Join("&", queryParams);
+        }
+
+        var response = await http.GetAsync(url);
+        return await response.ReadContentOrError();
+    }
+
     // Pull Requests
 
     [McpServerTool(Name = "list_github_pull_requests")]
