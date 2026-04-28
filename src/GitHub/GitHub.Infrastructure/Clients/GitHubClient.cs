@@ -137,7 +137,9 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
             .ToList();
 
         if (enrichTasks.Count > 0)
+        {
             await Task.WhenAll(enrichTasks);
+        }
 
         return events.OrderByDescending(e => e.CreatedAt).ToList();
     }
@@ -146,7 +148,9 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
     {
         var repoParts = activityEvent.Repo.Split('/');
         if (repoParts.Length != 2 || activityEvent.Number is null)
+        {
             return;
+        }
 
         var owner = repoParts[0];
         var repo = repoParts[1];
@@ -180,7 +184,9 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         var response = await http.GetAsync($"/search/issues?q={Uri.EscapeDataString(query)}&per_page=100", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return [];
+        }
 
         var result = await response.Content.ReadFromJsonAsync<GitHubSearchResultDto<GitHubSearchIssueItemDto>>(cancellationToken: cancellationToken);
         return result?.Items ?? [];
@@ -191,7 +197,9 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         var response = await http.GetAsync($"/search/commits?q={Uri.EscapeDataString(query)}&per_page=100", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return [];
+        }
 
         var result = await response.Content.ReadFromJsonAsync<GitHubSearchResultDto<GitHubSearchCommitItemDto>>(cancellationToken: cancellationToken);
         return result?.Items ?? [];
@@ -200,7 +208,9 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
     private static string ExtractRepoName(string? repositoryUrl)
     {
         if (string.IsNullOrEmpty(repositoryUrl))
+        {
             return string.Empty;
+        }
 
         // repository_url format: https://api.github.com/repos/owner/repo
         var parts = repositoryUrl.Split('/');
@@ -285,10 +295,26 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         var response = await http.GetAsync($"/repos/{owner}/{repo}/issues/{number}/comments?per_page=100", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return [];
+        }
 
         var dtos = await response.Content.ReadFromJsonAsync<List<GitHubIssueCommentDto>>(cancellationToken: cancellationToken);
         return dtos?.Select(MapIssueComment).ToList() ?? [];
+    }
+
+    public async Task<IssueComment?> AddIssueCommentAsync(string owner, string repo, int number, string body, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("GitHubApi");
+        var response = await http.PostAsJsonAsync($"/repos/{owner}/{repo}/issues/{number}/comments", new { body }, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        var dto = await response.Content.ReadFromJsonAsync<GitHubIssueCommentDto>(cancellationToken: cancellationToken);
+        return dto is not null ? MapIssueComment(dto) : null;
     }
 
     public async Task<List<Review>> GetPullRequestReviewsAsync(string owner, string repo, int number, CancellationToken cancellationToken = default)
@@ -297,7 +323,9 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         var response = await http.GetAsync($"/repos/{owner}/{repo}/pulls/{number}/reviews?per_page=100", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
             return [];
+        }
 
         var dtos = await response.Content.ReadFromJsonAsync<List<GitHubReviewDto>>(cancellationToken: cancellationToken);
         return dtos?.Select(MapReview).ToList() ?? [];

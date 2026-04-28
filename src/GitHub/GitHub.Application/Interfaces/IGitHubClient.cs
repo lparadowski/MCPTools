@@ -17,5 +17,6 @@ public interface IGitHubClient
 
     // Comments & Reviews
     Task<List<IssueComment>> GetIssueCommentsAsync(string owner, string repo, int number, CancellationToken cancellationToken = default);
+    Task<IssueComment?> AddIssueCommentAsync(string owner, string repo, int number, string body, CancellationToken cancellationToken = default);
     Task<List<Review>> GetPullRequestReviewsAsync(string owner, string repo, int number, CancellationToken cancellationToken = default);
 }
