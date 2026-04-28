@@ -142,4 +142,17 @@ public static class GitHubTools
         var response = await http.GetAsync($"/api/v1/repositories/{owner}/{repo}/pullrequests/{number}/reviews");
         return await response.ReadContentOrError();
     }
+
+    [McpServerTool(Name = "get_github_pull_request_review_comments")]
+    [Description("Get inline review comments on a pull request's diff. Returns the file path, line number, author, and comment body for each comment.")]
+    public static async Task<string> GetPullRequestReviewComments(
+        IHttpClientFactory httpFactory,
+        [Description("The repository owner (user or organization)")] string owner,
+        [Description("The repository name")] string repo,
+        [Description("The pull request number")] int number)
+    {
+        var http = httpFactory.CreateClient("GitHubApi");
+        var response = await http.GetAsync($"/api/v1/repositories/{owner}/{repo}/pullrequests/{number}/reviewcomments");
+        return await response.ReadContentOrError();
+    }
 }

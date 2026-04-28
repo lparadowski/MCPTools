@@ -336,6 +336,20 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         return dtos?.Select(MapReview).ToList() ?? [];
     }
 
+    public async Task<List<ReviewComment>> GetPullRequestReviewCommentsAsync(string owner, string repo, int number, CancellationToken cancellationToken = default)
+    {
+        var http = httpClientFactory.CreateClient("GitHubApi");
+        var response = await http.GetAsync($"/repos/{owner}/{repo}/pulls/{number}/comments?per_page=100", cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return [];
+        }
+
+        var dtos = await response.Content.ReadFromJsonAsync<List<GitHubReviewCommentDto>>(cancellationToken: cancellationToken);
+        return dtos?.Select(MapReviewComment).ToList() ?? [];
+    }
+
     private static IssueComment MapIssueComment(GitHubIssueCommentDto dto) => new()
     {
         Id = dto.Id,
@@ -352,6 +366,18 @@ public class GitHubClient(IHttpClientFactory httpClientFactory) : IGitHubClient
         State = dto.State,
         Body = dto.Body,
         SubmittedAt = dto.SubmittedAt
+    };
+
+    private static ReviewComment MapReviewComment(GitHubReviewCommentDto dto) => new()
+    {
+        Id = dto.Id,
+        Author = dto.User?.Login ?? string.Empty,
+        Body = dto.Body,
+        Path = dto.Path,
+        Line = dto.Line,
+        Side = dto.Side,
+        CreatedAt = dto.CreatedAt,
+        UpdatedAt = dto.UpdatedAt
     };
 
     private static Repository MapRepository(GitHubRepositoryDto dto) => new()
