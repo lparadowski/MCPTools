@@ -47,6 +47,12 @@
     <Project Path="src/GitHub/GitHub.Domain/GitHub.Domain.csproj" />
     <Project Path="src/GitHub/GitHub.Infrastructure/GitHub.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Rabbit/">
+    <Project Path="src/Rabbit/Rabbit.Api/Rabbit.Api.csproj" />
+    <Project Path="src/Rabbit/Rabbit.Application/Rabbit.Application.csproj" />
+    <Project Path="src/Rabbit/Rabbit.Domain/Rabbit.Domain.csproj" />
+    <Project Path="src/Rabbit/Rabbit.Infrastructure/Rabbit.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Shared/">
     <Project Path="src/Shared/Shared.Application/Shared.Application.csproj" />
     <Project Path="src/Shared/Shared.Api/Shared.Api.csproj" />
