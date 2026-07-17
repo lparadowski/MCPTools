@@ -53,6 +53,12 @@
     <Project Path="src/Rabbit/Rabbit.Domain/Rabbit.Domain.csproj" />
     <Project Path="src/Rabbit/Rabbit.Infrastructure/Rabbit.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Octopus/">
+    <Project Path="src/Octopus/Octopus.Api/Octopus.Api.csproj" />
+    <Project Path="src/Octopus/Octopus.Application/Octopus.Application.csproj" />
+    <Project Path="src/Octopus/Octopus.Domain/Octopus.Domain.csproj" />
+    <Project Path="src/Octopus/Octopus.Infrastructure/Octopus.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Shared/">
     <Project Path="src/Shared/Shared.Application/Shared.Application.csproj" />
     <Project Path="src/Shared/Shared.Api/Shared.Api.csproj" />

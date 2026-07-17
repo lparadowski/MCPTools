@@ -1,6 +1,6 @@
 # MCP Project Tools
 
-An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that gives AI assistants like Claude the ability to interact with project management, source control, and collaboration tools — Jira, Trello, Confluence, Miro, Azure DevOps, GitHub, Polarion, and Chrome browser automation.
+An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that gives AI assistants like Claude the ability to interact with project management, source control, and collaboration tools — Jira, Trello, Confluence, Miro, Azure DevOps, GitHub, Polarion, RabbitMQ, Octopus Deploy, and Chrome browser automation.
 
 Built with .NET 10 and Docker. Each integration runs as an independent microservice behind a unified MCP interface.
 
@@ -15,6 +15,8 @@ Connect this MCP server to Claude (or any MCP-compatible client) and it can:
 - **Azure DevOps** — Manage projects, work items, boards, sprints, and teams.
 - **GitHub** — List repositories and pull requests, read PR reviews and issue comments, and get per-user activity.
 - **Polarion** — Browse projects, list and inspect requirements, walk requirement links for traceability.
+- **RabbitMQ** — Inspect queues, exchanges, and subscriptions; peek, publish, and drain messages.
+- **Octopus Deploy** — Discover environments and projects, and find which build/version was deployed to an environment at any point in time.
 - **Chrome** — List open tabs, navigate to URLs, and capture screenshots via Chrome DevTools Protocol.
 
 ## Architecture
@@ -91,6 +93,8 @@ This starts the API containers:
 | Azure DevOps  | 5005 |
 | Polarion API  | 5006 |
 | GitHub API    | 5007 |
+| RabbitMQ API  | 5008 |
+| Octopus API   | 5009 |
 | Seq           | 5341 |
 
 ### 3. Build the MCP server
@@ -160,6 +164,18 @@ GITHUB_TOKEN=your_personal_access_token
 # Polarion (hosted instance URL + a personal access token)
 POLARION_BASE_URL=https://your-polarion-instance/polarion
 POLARION_TOKEN=your_personal_access_token
+
+# RabbitMQ (broker URI + management API for queue inspection)
+RABBITMQ_URI=amqp://guest:guest@host.docker.internal:5672/
+RABBITMQ_MANAGEMENT_URI=http://host.docker.internal:15672
+RABBITMQ_MANAGEMENT_USERNAME=guest
+RABBITMQ_MANAGEMENT_PASSWORD=guest
+RABBITMQ_VHOST=/
+
+# Octopus Deploy (server URL + API key from User Profile → API Keys)
+OCTOPUS_SERVER_URL=https://your-octopus-instance
+OCTOPUS_API_KEY=your_api_key
+OCTOPUS_SPACE=            # optional; leave blank to use the default space
 ```
 
 ### Corporate Proxy / SSL Issues
@@ -281,6 +297,24 @@ google-chrome --remote-debugging-port=9222
 | `get_polarion_requirement` | Get a specific work item by ID |
 | `get_polarion_requirement_links` | Walk linked work items for traceability |
 
+### RabbitMQ (8 tools)
+| Tool | Description |
+|------|-------------|
+| `rabbit_list_queues` | List queues with message counts |
+| `rabbit_list_exchanges` | List exchanges |
+| `rabbit_list_subscriptions` | List active subscriptions |
+| `rabbit_peek` | Peek messages from a queue without consuming them |
+| `rabbit_publish` | Publish a message to an exchange or queue |
+| `rabbit_subscribe` / `rabbit_unsubscribe` | Start or stop a subscription |
+| `rabbit_drain` | Consume and drain messages from a queue |
+
+### Octopus Deploy (3 tools)
+| Tool | Description |
+|------|-------------|
+| `list_octopus_environments` | List all environments with their ids and exact names |
+| `list_octopus_projects` | List all projects (applications) with their ids and exact names |
+| `get_octopus_deployed_version` | Find which build/version was live on an environment at a point in time — per project, or for one project |
+
 ### Chrome (3 tools)
 | Tool | Description |
 |------|-------------|
@@ -302,6 +336,8 @@ src/
 │       ├── AzureDevOpsTools.cs
 │       ├── GitHubTools.cs
 │       ├── PolarionTools.cs
+│       ├── RabbitTools.cs
+│       ├── OctopusTools.cs
 │       └── ChromeTools.cs
 │
 ├── Jira/                       # Clean architecture
@@ -316,6 +352,8 @@ src/
 ├── AzureDevOps/                # Same layered pattern
 ├── GitHub/                     # Same layered pattern
 ├── Polarion/                   # Same layered pattern
+├── Rabbit/                     # Same layered pattern
+├── Octopus/                    # Same layered pattern
 │
 ├── Shared/
 │   ├── Shared.Api/             # GlobalExceptionHandler, ResultExtensions
@@ -343,6 +381,7 @@ src/
 - **Chrome automation requires a local Chrome instance** — must be launched manually with `--remote-debugging-port=9222`.
 - **Miro integration is read/write for sticky notes only** — other item types (frames, cards, shapes, connectors) are not yet supported.
 - **Trello checklists are not supported** — cards, lists, labels, and comments are covered, but checklist management is not yet implemented.
+- **Octopus Deploy is read-only deployment visibility** — it reports which build/version was live on an environment at a point in time (deploy time reflects when a deployment was queued/started, not completion). Release details, logs, triggering deployments, and runbooks are not yet implemented.
 - **No webhook or real-time event support** — all interactions are request/response. There is no push notification or polling for changes.
 - **No test suite** — backend services and MCP tools do not currently have automated tests.
 
