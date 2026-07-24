@@ -15,6 +15,7 @@ builder.Services.AddHttpClient("PolarionApi", c => { c.BaseAddress = new Uri("ht
 builder.Services.AddHttpClient("GitHubApi", c => { c.BaseAddress = new Uri("http://localhost:5007"); c.Timeout = timeout; });
 builder.Services.AddHttpClient("RabbitApi", c => { c.BaseAddress = new Uri("http://localhost:5008"); c.Timeout = timeout; });
 builder.Services.AddHttpClient("OctopusApi", c => { c.BaseAddress = new Uri("http://localhost:5009"); c.Timeout = timeout; });
+builder.Services.AddHttpClient("ArtifactoryApi", c => { c.BaseAddress = new Uri("http://localhost:5010"); c.Timeout = timeout; });
 
 builder.Services
     .AddMcpServer()
